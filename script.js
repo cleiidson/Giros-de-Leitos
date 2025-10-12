@@ -1,37 +1,35 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Mostrar/esconder campo "Outra Encarregada"
   const encarregadaRadios = document.getElementsByName('encarregada');
   const outraEncarregadaDiv = document.getElementById('outra_encarregada_div');
   const outraEncarregadaInput = document.getElementById('outra_encarregada');
+  const overlay = document.getElementById('loadingOverlay');
 
+  // Mostrar/esconder "Outra Encarregada"
   encarregadaRadios.forEach(radio => {
     radio.addEventListener('change', () => {
-      if (radio.value === 'outra') {
+      if (radio.value === 'OUTRA') {
         outraEncarregadaDiv.style.display = 'block';
       } else {
         outraEncarregadaDiv.style.display = 'none';
-        outraEncarregadaInput.value = ''; // Limpa o campo se "Risocleide" for selecionado
+        outraEncarregadaInput.value = '';
       }
     });
   });
 
-  // Converter texto para maiúsculas em tempo real
+  // Converter texto para maiúsculas
   const textInputs = document.querySelectorAll('#registroForm input[type="text"], #registroForm textarea');
   textInputs.forEach(input => {
-    input.addEventListener('input', () => {
-      input.value = input.value.toUpperCase();
-    });
+    input.addEventListener('input', () => { input.value = input.value.toUpperCase(); });
   });
 
-  // Envio do formulário
+  // Submit do formulário
   document.getElementById('registroForm').addEventListener('submit', function(event) {
     event.preventDefault();
-
     const formData = new FormData(this);
     const data = {};
     formData.forEach((value, key) => { data[key] = value.toUpperCase(); });
 
-    // Validação dos campos obrigatórios
+    // Validação
     const requiredFields = ['andar', 'leito', 'hora_inicio', 'hora_termino', 'colaboradora', 'encarregada', 'no_sistema'];
     for (let field of requiredFields) {
       if (!data[field]) {
@@ -46,11 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
         showMessage('error', 'Digite o nome da outra encarregada!');
         return;
       }
-      data.encarregada = data.outra_encarregada; // Substitui pelo valor digitado
+      data.encarregada = data.outra_encarregada;
     }
-    delete data.outra_encarregada; // Remove campo auxiliar
+    delete data.outra_encarregada;
 
-    // Envio para Google Apps Script
+    // Mostrar overlay de carregando
+    overlay.style.display = 'flex';
+
+    // Envio para GAS
     fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -65,14 +66,16 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .catch(error => {
       showMessage('error', 'Erro ao salvar: ' + error.message);
+    })
+    .finally(() => {
+      overlay.style.display = 'none';
     });
   });
 
-  // Função para exibir mensagens
+  // Função de mensagens
   function showMessage(type, message) {
     const msgDiv = document.getElementById('mensagem');
     msgDiv.innerHTML = '';
-
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
     alertDiv.role = 'alert';
@@ -82,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     msgDiv.appendChild(alertDiv);
 
-    // Limpa a mensagem quando qualquer input recebe foco
+    // Limpa mensagem ao focar em qualquer input
     const inputs = document.querySelectorAll('#registroForm input, #registroForm textarea');
     inputs.forEach(input => {
       input.addEventListener('focus', () => { msgDiv.innerHTML = ''; }, { once: true });

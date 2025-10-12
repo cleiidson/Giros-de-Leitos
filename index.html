@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Sistema de Giro de Leito</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Registro de Giro de Leito</h1>
+  <form id="registroForm">
+    <label for="andar">Andar:</label>
+    <input type="text" id="andar" name="andar" required><br>
+
+    <label for="leito">Leito:</label>
+    <input type="text" id="leito" name="leito" required><br>
+
+    <label for="hora_inicio">Hora Início:</label>
+    <input type="time" id="hora_inicio" name="hora_inicio" required><br>
+
+    <label for="hora_termino">Hora Término:</label>
+    <input type="time" id="hora_termino" name="hora_termino" required><br>
+
+    <label for="colaboradora">Colaboradora:</label>
+    <input type="text" id="colaboradora" name="colaboradora" required><br>
+
+    <label for="encarregada">Encarregada:</label>
+    <input type="text" id="encarregada" name="encarregada" required><br>
+
+    <label for="no_sistema">No Sistema:</label>
+    <input type="text" id="no_sistema" name="no_sistema" required><br>
+
+    <label for="observacoes">Observações (opcional):</label>
+    <textarea id="observacoes" name="observacoes"></textarea><br>
+
+    <button type="submit">Salvar</button>
+  </form>
+
+  <div id="mensagem"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

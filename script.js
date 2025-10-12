@@ -30,29 +30,6 @@ document.getElementById('registroForm').addEventListener('submit', function(even
   .catch(error => {
     showMessage('error', 'Erro ao salvar: ' + error.message);
   });
-
-  /*
-  // Alternativa com proxy CORS (descomente para testar)
-  fetch('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(result => {
-    if (result.status === 'success') {
-      showMessage('success', result.message);
-      this.reset();
-    } else {
-      showMessage('error', result.message);
-    }
-  })
-  .catch(error => {
-    showMessage('error', 'Erro ao salvar: ' + error.message);
-  });
-  */
 });
 
 function showMessage(type, message) {

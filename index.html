@@ -8,7 +8,7 @@
 </head>
 <body>
   <h1>Registro de Giro de Leito</h1>
-  <form id="registroForm">
+  <form id="registroForm" enctype="multipart/form-data">
     <label for="andar">Andar:</label>
     <input type="text" id="andar" name="andar" required><br>
 
@@ -32,6 +32,9 @@
 
     <label for="observacoes">Observações (opcional):</label>
     <textarea id="observacoes" name="observacoes"></textarea><br>
+
+    <label for="foto">Foto (opcional):</label>
+    <input type="file" id="foto" name="foto" accept="image/*"><br>
 
     <button type="submit">Salvar</button>
   </form>

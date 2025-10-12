@@ -1,7 +1,7 @@
 // Inicializa Supabase
 const supabaseUrl = 'https://tmgzfzhfepouswnudqsd.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZ3pmemhmZXBvdXN3bnVkcXNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNjcwMTEsImV4cCI6MjA3NTg0MzAxMX0.2ftTiOv3ed916LBk81Y_q4UDByAoF5vq30QqtnL3bG0';
-const supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
+const supabase = supabase.createClient(supabaseUrl, supabaseKey); // <- CORRIGIDO
 const bucket = 'giro-de-leito';
 
 document.getElementById('registroForm').addEventListener('submit', async function(event) {

@@ -1,16 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
-  // Mostrar/esconder campo "Outra Encarregada"
   const encarregadaRadios = document.getElementsByName('encarregada');
   const outraEncarregadaDiv = document.getElementById('outra_encarregada_div');
   const outraEncarregadaInput = document.getElementById('outra_encarregada');
 
+  // Mostrar/esconder campo "Outra Encarregada"
   encarregadaRadios.forEach(radio => {
     radio.addEventListener('change', () => {
-      if (radio.value === 'outra') {
-        outraEncarregadaDiv.style.display = 'block';
-      } else {
-        outraEncarregadaDiv.style.display = 'none';
-        outraEncarregadaInput.value = ''; // Limpa o campo se "Risocleide" for selecionado
+      outraEncarregadaDiv.style.display = radio.value === 'outra' ? 'block' : 'none';
+      if (radio.value !== 'outra') {
+        outraEncarregadaInput.value = '';
       }
     });
   });
@@ -40,39 +38,39 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // Campo "Outra Encarregada"
+    // Lidar com campo "Outra Encarregada"
     if (data.encarregada === 'OUTRA') {
       if (!data.outra_encarregada) {
         showMessage('error', 'Digite o nome da outra encarregada!');
         return;
       }
-      data.encarregada = data.outra_encarregada; // Substitui pelo valor digitado
+      data.encarregada = data.outra_encarregada;
     }
-    delete data.outra_encarregada; // Remove campo auxiliar
+    delete data.outra_encarregada;
 
-    // Envio para Google Apps Script
+    // Mostrar popup imediatamente
+    showMessage('success', 'Registro enviado!');
+
+    // Limpar formulário
+    this.reset();
+    outraEncarregadaDiv.style.display = 'none';
+    document.getElementById('encarregada_risocleide').checked = true;
+
+    // Enviar para o Google Apps Script (sem esperar resposta)
     fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json'
+      },
       mode: 'no-cors'
-    })
-    .then(() => {
-      showMessage('success', 'Registro salvo com sucesso!');
-      this.reset();
-      outraEncarregadaDiv.style.display = 'none';
-      document.getElementById('encarregada_risocleide').checked = true;
-    })
-    .catch(error => {
-      showMessage('error', 'Erro ao salvar: ' + error.message);
-    });
+    }).catch(err => console.log('Erro ao enviar: ', err));
   });
 
   // Função para exibir mensagens
   function showMessage(type, message) {
     const msgDiv = document.getElementById('mensagem');
     msgDiv.innerHTML = '';
-
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
     alertDiv.role = 'alert';
@@ -82,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     msgDiv.appendChild(alertDiv);
 
-    // Limpa a mensagem quando qualquer input recebe foco
+    // Limpa o alerta se o usuário focar em qualquer campo
     const inputs = document.querySelectorAll('#registroForm input, #registroForm textarea');
     inputs.forEach(input => {
       input.addEventListener('focus', () => { msgDiv.innerHTML = ''; }, { once: true });

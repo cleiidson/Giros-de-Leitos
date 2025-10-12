@@ -38,10 +38,23 @@ document.getElementById('registroForm').addEventListener('submit', function(even
 
 function showMessage(type, message) {
   const msgDiv = document.getElementById('mensagem');
-  msgDiv.textContent = message;
-  msgDiv.style.color = type === 'success' ? 'green' : 'red';
-  // Limpa a mensagem após 3 segundos
-  setTimeout(() => {
-    msgDiv.textContent = '';
-  }, 3000);
+  // Remove alertas anteriores
+  msgDiv.innerHTML = '';
+  // Cria novo alerta Bootstrap
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+  alertDiv.role = 'alert';
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  msgDiv.appendChild(alertDiv);
+
+  // Limpa a mensagem quando qualquer campo do formulário recebe foco
+  const inputs = document.querySelectorAll('#registroForm input, #registroForm textarea');
+  inputs.forEach(input => {
+    input.addEventListener('focus', () => {
+      msgDiv.innerHTML = '';
+    }, { once: true }); // Executa apenas uma vez por input
+  });
 }

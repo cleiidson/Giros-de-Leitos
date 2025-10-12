@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showMessage('success', 'Registro salvo com sucesso!');
       this.reset(); // Limpa o formulário
       outraEncarregadaDiv.style.display = 'none'; // Esconde o campo "Outra Encarregada"
-      document.getElementById('encarregada_risocleide').checked = true; // Reseta para Risocléide
+      document.getElementById('encarregada_risocleide').checked = true; // Reseta para Risocleide
     })
     .catch(error => {
       showMessage('error', 'Erro ao salvar: ' + error.message);

@@ -11,6 +11,7 @@ document.getElementById('registroForm').addEventListener('submit', async functio
   const data = {};
   formData.forEach((value, key) => { data[key] = value; });
 
+  // Validação dos campos obrigatórios
   const requiredFields = ['andar','leito','hora_inicio','hora_termino','colaboradora','encarregada','no_sistema'];
   for (let field of requiredFields) {
     if (!data[field]) {
@@ -19,7 +20,7 @@ document.getElementById('registroForm').addEventListener('submit', async functio
     }
   }
 
-  // Upload da foto
+  // Upload da foto para Supabase
   let fotoLink = '';
   const foto = formData.get('foto');
   if (foto && foto.name) {
@@ -29,12 +30,13 @@ document.getElementById('registroForm').addEventListener('submit', async functio
       showMessage('error','Erro ao enviar a imagem: ' + error.message);
       return;
     }
+    // Link público da imagem
     fotoLink = supabase.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
   }
 
   data.foto = fotoLink;
 
-  // Envio para Google Apps Script
+  // Envio dos dados para o Google Apps Script
   fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -52,6 +54,7 @@ document.getElementById('registroForm').addEventListener('submit', async functio
   .catch(error => showMessage('error','Erro ao salvar: '+error.message));
 });
 
+// Função para exibir mensagens
 function showMessage(type,message){
   const msgDiv = document.getElementById('mensagem');
   msgDiv.textContent = message;

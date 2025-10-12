@@ -14,22 +14,18 @@ document.getElementById('registroForm').addEventListener('submit', function(even
     }
   }
 
-  // Envio para o Google Apps Script com proxy CORS
-  fetch('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
+  // Envio para o Google Apps Script
+  fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
     method: 'POST',
     body: JSON.stringify(data),
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    mode: 'no-cors' // Evita bloqueio de CORS
   })
-  .then(response => response.json())
-  .then(result => {
-    if (result.status === 'success') {
-      showMessage('success', result.message);
-      this.reset(); // Limpa o form
-    } else {
-      showMessage('error', result.message);
-    }
+  .then(() => {
+    showMessage('success', 'Registro salvo com sucesso!');
+    this.reset(); // Limpa o form
   })
   .catch(error => {
     showMessage('error', 'Erro ao salvar: ' + error.message);

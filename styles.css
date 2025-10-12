@@ -3,6 +3,11 @@ body {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
+  background-color: #f8f9fa;
+}
+
+h1 {
+  color: #333;
 }
 
 form {
@@ -16,17 +21,29 @@ label {
 
 input, textarea {
   margin-bottom: 10px;
-  padding: 5px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 button {
   padding: 10px;
-  background-color: #4CAF50;
+  background-color: #28a745;
   color: white;
   border: none;
   cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #218838;
 }
 
 #mensagem {
   font-weight: bold;
+  margin-top: 10px;
+}
+#mensagem.success {
+  color: green;
 }

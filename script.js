@@ -1,54 +1,46 @@
+// Inicializa Supabase
+const supabaseUrl = 'https://tmgzfzhfepouswnudqsd.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZ3pmemhmZXBvdXN3bnVkcXNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNjcwMTEsImV4cCI6MjA3NTg0MzAxMX0.2ftTiOv3ed916LBk81Y_q4UDByAoF5vq30QqtnL3bG0';
+const supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
+const bucket = 'giro-de-leito';
+
 document.getElementById('registroForm').addEventListener('submit', async function(event) {
-  event.preventDefault(); // Evita reload da página
+  event.preventDefault();
 
   const formData = new FormData(this);
   const data = {};
   formData.forEach((value, key) => { data[key] = value; });
 
-  // Validação frontend
-  const requiredFields = ['andar', 'leito', 'hora_inicio', 'hora_termino', 'colaboradora', 'encarregada', 'no_sistema'];
+  const requiredFields = ['andar','leito','hora_inicio','hora_termino','colaboradora','encarregada','no_sistema'];
   for (let field of requiredFields) {
     if (!data[field]) {
-      showMessage('error', 'Todos os campos obrigatórios devem ser preenchidos!');
+      showMessage('error','Todos os campos obrigatórios devem ser preenchidos!');
       return;
     }
   }
 
-  // Upload da foto para ImgBB (se presente)
+  // Upload da foto
   let fotoLink = '';
-  if (formData.get('foto')) {
-    const imgbbFormData = new FormData();
-    imgbbFormData.append('image', formData.get('foto'));
-    try {
-      const response = await fetch('https://api.imgbb.com/1/upload?key=SUA_CHAVE_API_IMGBB', {
-        method: 'POST',
-        body: imgbbFormData
-      });
-      const result = await response.json();
-      if (result.success) {
-        fotoLink = result.data.url;
-      } else {
-        showMessage('error', 'Erro ao fazer upload da foto!');
-        return;
-      }
-    } catch (error) {
-      showMessage('error', 'Erro ao fazer upload da foto: ' + error.message);
+  const foto = formData.get('foto');
+  if (foto && foto.name) {
+    const fileName = `${Date.now()}_${foto.name}`;
+    const { data: uploadData, error } = await supabase.storage.from(bucket).upload(fileName, foto);
+    if (error) {
+      showMessage('error','Erro ao enviar a imagem: ' + error.message);
       return;
     }
+    fotoLink = supabase.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
   }
 
-  // Adiciona o link da foto aos dados
   data.foto = fotoLink;
 
-  // Envio para o Google Apps Script
-  fetch('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
+  // Envio para Google Apps Script
+  fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
     method: 'POST',
     body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
+    headers: { 'Content-Type': 'application/json' }
   })
-  .then(response => response.json())
+  .then(res => res.json())
   .then(result => {
     if (result.status === 'success') {
       showMessage('success', result.message);
@@ -57,13 +49,11 @@ document.getElementById('registroForm').addEventListener('submit', async functio
       showMessage('error', result.message);
     }
   })
-  .catch(error => {
-    showMessage('error', 'Erro ao salvar: ' + error.message);
-  });
+  .catch(error => showMessage('error','Erro ao salvar: '+error.message));
 });
 
-function showMessage(type, message) {
+function showMessage(type,message){
   const msgDiv = document.getElementById('mensagem');
   msgDiv.textContent = message;
-  msgDiv.style.color = type === 'success' ? 'green' : 'red';
+  msgDiv.style.color = type==='success'?'green':'red';
 }

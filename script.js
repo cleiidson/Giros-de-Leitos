@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for (let field of requiredFields) {
       if (!data[field]) {
         showMessage('error', 'Todos os campos obrigatórios devem ser preenchidos!');
+        console.log(`Campo obrigatório ausente: ${field}`);
         return;
       }
     }
@@ -41,8 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validar horário de término (deve ser maior que o início)
     const horaInicio = new Date(`1970-01-01T${data.hora_inicio}:00`);
     const horaTermino = new Date(`1970-01-01T${data.hora_termino}:00`);
-    if (horaTermino <= horaInicio) {
+    console.log(`Hora Início: ${data.hora_inicio}, Hora Término: ${data.hora_termino}`);
+    if (isNaN(horaTermino) || isNaN(horaInicio) || horaTermino <= horaInicio) {
       showMessage('error', 'O horário de término deve ser maior que o horário de início!');
+      console.log('Validação de horário falhou');
       return;
     }
 
@@ -50,14 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (data.encarregada === 'OUTRA') {
       if (!data.outra_encarregada) {
         showMessage('error', 'Digite o nome da outra encarregada!');
+        console.log('Campo "Outra Encarregada" ausente');
         return;
       }
       data.encarregada = data.outra_encarregada;
     }
     delete data.outra_encarregada;
 
-    // Mostrar popup imediatamente
+    // Mostrar popup de sucesso
     showMessage('success', 'Registro enviado!');
+    console.log('Registro enviado com sucesso, dados:', data);
 
     // Limpar formulário
     this.reset();
@@ -78,6 +83,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Função para exibir mensagens
   function showMessage(type, message) {
     const msgDiv = document.getElementById('mensagem');
+    if (!msgDiv) {
+      console.error('Elemento #mensagem não encontrado!');
+      return;
+    }
     msgDiv.innerHTML = '';
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
@@ -87,11 +96,15 @@ document.addEventListener('DOMContentLoaded', function() {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     msgDiv.appendChild(alertDiv);
+    msgDiv.style.display = 'block'; // Garante que o div seja visível
 
     // Limpa o alerta se o usuário focar em qualquer campo
     const inputs = document.querySelectorAll('#registroForm input, #registroForm textarea');
     inputs.forEach(input => {
-      input.addEventListener('focus', () => { msgDiv.innerHTML = ''; }, { once: true });
+      input.addEventListener('focus', () => {
+        msgDiv.innerHTML = '';
+        msgDiv.style.display = 'none';
+      }, { once: true });
     });
   }
 });

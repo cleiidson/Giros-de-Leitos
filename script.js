@@ -153,3 +153,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+//Teste o histórico com a senha "gps123".

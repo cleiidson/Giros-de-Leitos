@@ -73,9 +73,19 @@ input:focus, textarea:focus {
   font-weight: bold;
   padding: 10px 15px;
   border-radius: 6px;
-  background-color: rgba(176, 175, 175, 0.95);
+  background-color: rgba(19, 30, 42, 0.9); /* Azul escuro semelhante ao fundo, com transparência */
   box-shadow: 0 3px 8px rgba(0,0,0,0.2);
   display: none; /* Será exibido via JS */
+}
+
+#mensagem .alert-success {
+  background-color: rgba(34, 139, 34, 0.9); /* Verde escuro para sucesso, harmonizando com o fundo */
+  color: #FFFFFF;
+}
+
+#mensagem .alert-danger {
+  background-color: rgba(160, 34, 34, 0.95); /* Vermelho mantido para erro */
+  color: #FFFFFF;
 }
 
 #outra_encarregada_div {

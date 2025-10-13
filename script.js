@@ -38,6 +38,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
+    // Validar horário de término (deve ser maior que o início)
+    const horaInicio = new Date(`1970-01-01T${data.hora_inicio}:00`);
+    const horaTermino = new Date(`1970-01-01T${data.hora_termino}:00`);
+    if (horaTermino <= horaInicio) {
+      showMessage('error', 'O horário de término deve ser maior que o horário de início!');
+      return;
+    }
+
     // Lidar com campo "Outra Encarregada"
     if (data.encarregada === 'OUTRA') {
       if (!data.outra_encarregada) {

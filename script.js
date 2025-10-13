@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     outraEncarregadaDiv.style.display = 'none';
     document.getElementById('encarregada_risocleide').checked = true;
 
-    // Enviar para o Google Apps Script (sem esperar resposta)
+    // Enviar para o Google Apps Script
     fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -79,6 +79,51 @@ document.addEventListener('DOMContentLoaded', function() {
       mode: 'no-cors'
     }).catch(err => console.log('Erro ao enviar: ', err));
   });
+
+  // Função para carregar histórico
+  window.carregarHistorico = function() {
+    const senhaInput = document.getElementById('senhaHistorico');
+    const senha = senhaInput.value;
+    const tabelaDiv = document.getElementById('historicoTabela');
+    
+    if (!senha) {
+      tabelaDiv.innerHTML = '<p class="text-danger">Digite a senha para acessar o histórico!</p>';
+      return;
+    }
+
+    // Simulação de dados devido ao modo no-cors (substitua por fetch real com proxy se necessário)
+    fetch(`https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec?senha=${encodeURIComponent(senha)}&encarregada=RISOCLÉIA`, {
+      method: 'GET',
+      mode: 'no-cors'
+    })
+    .then(() => {
+      // Dados simulados para demo
+      const historicoSimulado = [
+        { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "No Sistema": "SIM", "Observações": "TESTE 1" },
+        { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "No Sistema": "NÃO", "Observações": "TESTE 2" }
+      ];
+      gerarTabelaHistorico(historicoSimulado, tabelaDiv);
+      senhaInput.value = ''; // Limpa senha
+    })
+    .catch(error => {
+      tabelaDiv.innerHTML = '<p class="text-danger">Erro ao carregar histórico: ' + error.message + '</p>';
+    });
+  };
+
+  // Função para gerar tabela do histórico
+  function gerarTabelaHistorico(historico, tabelaDiv) {
+    if (historico.length === 0) {
+      tabelaDiv.innerHTML = '<p class="text-warning">Nenhum registro encontrado para esta encarregada.</p>';
+      return;
+    }
+
+    let tabelaHTML = '<table class="table table-striped"><thead><tr><th>Data Registro</th><th>Andar</th><th>Leito</th><th>Hora Início</th><th>Hora Término</th><th>Colaboradora</th><th>No Sistema</th><th>Observações</th></tr></thead><tbody>';
+    historico.forEach(reg => {
+      tabelaHTML += `<tr><td>${reg["Data Registro"]}</td><td>${reg["Andar"]}</td><td>${reg["Leito"]}</td><td>${reg["Hora de Início"]}</td><td>${reg["Hora de Término"]}</td><td>${reg["Colaboradora"]}</td><td>${reg["No Sistema"]}</td><td>${reg["Observações"] || '-'}</td></tr>`;
+    });
+    tabelaHTML += '</tbody></table>';
+    tabelaDiv.innerHTML = tabelaHTML;
+  }
 
   // Função para exibir mensagens
   function showMessage(type, message) {
@@ -96,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     msgDiv.appendChild(alertDiv);
-    msgDiv.style.display = 'block'; // Garante que o div seja visível
+    msgDiv.style.display = 'block';
 
     // Limpa o alerta se o usuário focar em qualquer campo
     const inputs = document.querySelectorAll('#registroForm input, #registroForm textarea');

@@ -18,7 +18,7 @@ h1 {
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   background-color: #FFFFFF; /* Fundo branco */
   padding: 20px;
-  border: 2px solid #1E90FF; /* Borda azul */
+  border: 2px solid #111112; /* Borda escura */
 }
 
 label {

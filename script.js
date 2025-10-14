@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const noActiveBeds = document.getElementById('noActiveBeds');
   const registroStatusForm = document.getElementById('registroStatusForm');
   const registroManualForm = document.getElementById('registroManualForm');
+  
+  // URL de destino fornecida pelo usuário
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec';
 
   let activeBeds = JSON.parse(localStorage.getItem('activeBeds')) || {};
   let intervalId = null; 
@@ -21,15 +24,18 @@ document.addEventListener('DOMContentLoaded', function() {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
   
-  function getEncarregada(formId) {
-    const encarregadaRadio = document.querySelector(`#${formId} input[name^="encarregada"]:checked`);
-    if (!encarregadaRadio) return null;
+  // Função ajustada para pegar a encarregada com base no sufixo (status ou manual)
+  function getEncarregada(suffix) {
+    const encarregadaRadios = document.querySelectorAll(`input[name="encarregada_${suffix}"]:checked`);
+    if (encarregadaRadios.length === 0) return null;
+    
+    const encarregadaRadio = encarregadaRadios[0];
 
-    if (encarregadaRadio.value === 'OUTRA') {
-      const outraInput = document.getElementById(`outra_encarregada_${formId.replace('registro', '').toLowerCase()}`);
+    if (encarregadaRadio.value === 'outra') {
+      const outraInput = document.getElementById(`outra_encarregada_${suffix}`);
       return outraInput ? outraInput.value.toUpperCase() : null;
     }
-    return encarregadaRadio.value;
+    return encarregadaRadio.value.toUpperCase();
   }
 
   // Função para salvar estado no localStorage
@@ -39,7 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Função de Envio Universal de Dados para o Apps Script
   function sendDataToAppsScript(data, key) {
-    fetch('https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec', {
+    // Implementação do fetch conforme solicitado pelo usuário
+    fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -48,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
       mode: 'no-cors'
     })
     .then(() => {
-        // Sucesso
+        // Sucesso no envio (ou pelo menos o fetch foi iniciado no modo no-cors)
         if (key && activeBeds[key]) {
             delete activeBeds[key]; // Remove do status se for o fluxo de finalização
             saveActiveBeds();
@@ -57,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showMessage('success', `Registro do leito ${data.andar}/${data.leito} ENVIADO com sucesso!`);
     })
     .catch(err => {
-        // Em caso de erro, remove o leito do status para não travar (se for fluxo de finalização)
+        // Em caso de erro de rede ou Apps Script, remove o leito do status
         if (key && activeBeds[key]) {
              delete activeBeds[key]; 
              saveActiveBeds();
@@ -200,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
     renderStatusCards();
     showMessage('info', `Higienização do leito ${andar}/${leito} INICIADA. Clique em FINALIZAR no card de status.`);
     registroStatusForm.reset();
-    document.getElementById('outra_encarregada_div_status').style.display = 'none'; // Garante que some
+    document.getElementById('outra_encarregada_div_status').style.display = 'none'; 
     document.getElementById('encarregada_risocleide_status').checked = true;
   });
   
@@ -217,10 +224,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validação dos campos obrigatórios do formulário manual
     const requiredFields = ['ANDAR', 'LEITO', 'HORA_INICIO', 'HORA_TERMINO', 'COLABORADORA', 'NO_SISTEMA'];
     for (let field of requiredFields) {
-      if (!data[field] || !encarregada) {
-        showMessage('error', 'Todos os campos obrigatórios do Registro Manual devem ser preenchidos!');
+      if (!data[field]) {
+        showMessage('error', `O campo obrigatório "${field.replace('_', ' ')}" do Registro Manual deve ser preenchido!`);
         return;
       }
+    }
+    if (!encarregada) {
+        showMessage('error', 'O campo obrigatório "Encarregada" do Registro Manual deve ser preenchido!');
+        return;
     }
     
     // Validação de Horário (mantida a correção de meia-noite)
@@ -283,25 +294,35 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Simulação de fetch para histórico (Use a senha 'GPS123' para a demo)
-    fetch(`https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec?senha=${encodeURIComponent(senha)}&encarregada=RISOCLEIDE`, {
+    // Simulação de fetch para histórico (GET request, note que aqui o modo 'no-cors' não traz o JSON)
+    fetch(`${APPS_SCRIPT_URL}?senha=${encodeURIComponent(senha)}&encarregada=RISOCLEIDE`, {
       method: 'GET'
     })
     .then(response => {
+        // Devido ao 'no-cors' no Apps Script, esta checagem pode falhar, dependendo da configuração
+        // do seu script GET. O tratamento de erro aqui é focado na demo.
         if (!response.ok) {
-            throw new Error('Erro na requisição. Verifique a senha.');
+             // throw new Error('Erro na requisição.');
         }
-        return response.json();
+        return response.json().catch(() => {
+            // Se falhar o JSON (típico de no-cors), retorna um placeholder para o catch
+            return null; 
+        });
     })
     .then(historicoData => {
-        gerarTabelaHistorico(historicoData, tabelaDiv);
-        senhaInput.value = ''; 
+        if(historicoData) {
+            gerarTabelaHistorico(historicoData, tabelaDiv);
+            senhaInput.value = ''; 
+        } else {
+             // Caso a requisição GET falhe no CORS, usa a simulação
+             throw new Error('Falha ao obter dados. Usando dados simulados.');
+        }
     })
     .catch(error => {
         // Simulação de dados para demo em caso de erro no CORS/App Script
         const historicoSimulado = [
-          { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "No Sistema": "SIM", "Observações": "TESTE 1" },
-          { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "No Sistema": "NÃO", "Observações": "TESTE 2" }
+          { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "Encarregada": "RISOCLEIDE", "No Sistema": "SIM", "Observações": "TESTE 1" },
+          { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "Encarregada": "OUTRA", "No Sistema": "NÃO", "Observações": "TESTE 2" }
         ];
         if(senha.toUpperCase() === 'GPS123') { 
             gerarTabelaHistorico(historicoSimulado, tabelaDiv);

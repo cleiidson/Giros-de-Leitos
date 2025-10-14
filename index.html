@@ -13,132 +13,147 @@
     
     <div class="card shadow-sm mb-4">
       <div class="card-body">
-        <h3 class="card-title text-center" style="color: #131e2a;">Status dos Leitos em Higienização (Tempo Real)</h3>
-        <form id="registroStatusForm" class="mb-4">
-          <h5 class="mb-3">Preencha os dados e clique em "Iniciar Contagem"</h5>
-          <div class="row">
-            <div class="col-md-3 mb-3">
-              <label for="andar_status" class="form-label">Andar <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="andar_status" name="andar" placeholder="Ex: 1" required>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label for="leito_status" class="form-label">Leito <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="leito_status" name="leito" placeholder="Ex: 101" required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="colaboradora_status" class="form-label">Colaboradora <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="colaboradora_status" name="colaboradora" placeholder="Ex: Ana Silva" required>
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Encarregada <span class="text-danger">*</span></label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encarregada_status" id="encarregada_risocleide_status" value="RISOCLEIDE" checked>
-              <label class="form-check-label" for="encarregada_risocleide_status">Risocleide</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encarregada_status" id="encarregada_outra_status" value="outra">
-              <label class="form-check-label" for="encarregada_outra_status">Outra</label>
-            </div>
-            <div id="outra_encarregada_div_status" class="mt-2" style="display: none;">
-              <input type="text" class="form-control" id="outra_encarregada_status" name="outra_encarregada" placeholder="Digite o nome da encarregada">
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">No Sistema? <span class="text-danger">*</span></label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="no_sistema_status" id="no_sistema_sim_status" value="SIM" required>
-              <label class="form-check-label" for="no_sistema_sim_status">Sim</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="no_sistema_status" id="no_sistema_nao_status" value="NÃO">
-              <label class="form-check-label" for="no_sistema_nao_status">Não</label>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="observacoes_status" class="form-label">Observações (opcional)</label>
-            <textarea class="form-control" id="observacoes_status" name="observacoes" placeholder="Digite observações, se necessário"></textarea>
-          </div>
-          
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Iniciar Contagem</button>
-          </div>
-        </form>
         
-        <hr>
-        
-        <h4 class="text-center mb-3">Leitos em Andamento</h4>
-        <div id="statusLeitosContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-          <p class="text-center w-100" id="noActiveBeds">Nenhum leito em higienização ativa.</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h3 class="card-title text-center" style="color: #131e2a;">Registro Manual (Folha Noturna/Diária)</h3>
-        <form id="registroManualForm">
-          <div class="row">
-            <div class="col-md-3 mb-3">
-              <label for="andar_manual" class="form-label">Andar <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="andar_manual" name="andar" placeholder="Ex: 1º Andar" required>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label for="leito_manual" class="form-label">Leito <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="leito_manual" name="leito" placeholder="Ex: 101" required>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label for="hora_inicio_manual" class="form-label">Hora de Início <span class="text-danger">*</span></label>
-              <input type="time" class="form-control" id="hora_inicio_manual" name="hora_inicio" required>
-            </div>
-            <div class="col-md-3 mb-3">
-              <label for="hora_termino_manual" class="form-label">Hora de Término <span class="text-danger">*</span></label>
-              <input type="time" class="form-control" id="hora_termino_manual" name="hora_termino" required>
-            </div>
-          </div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-content" type="button" role="tab" aria-controls="status-content" aria-selected="true">Status (Tempo Real)</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-content" type="button" role="tab" aria-controls="manual-content" aria-selected="false">Registro Manual (Noturno/Folha)</button>
+          </li>
+        </ul>
 
-          <div class="mb-3">
-            <label for="colaboradora_manual" class="form-label">Colaboradora <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="colaboradora_manual" name="colaboradora" placeholder="Ex: Ana Silva" required>
+        <div class="tab-content" id="myTabContent">
+          
+          <div class="tab-pane fade show active" id="status-content" role="tabpanel" aria-labelledby="status-tab">
+            <h3 class="card-title text-center mt-4" style="color: #131e2a;">Status dos Leitos em Higienização (Tempo Real)</h3>
+            
+            <form id="registroStatusForm" class="mb-4">
+              <h5 class="mb-3">Preencha os dados e clique em "Iniciar Contagem"</h5>
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <label for="andar_status" class="form-label">Andar <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="andar_status" name="andar" placeholder="Ex: 1" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="leito_status" class="form-label">Leito <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="leito_status" name="leito" placeholder="Ex: 101" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="colaboradora_status" class="form-label">Colaboradora <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="colaboradora_status" name="colaboradora" placeholder="Ex: Ana Silva" required>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Encarregada <span class="text-danger">*</span></label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="encarregada_status" id="encarregada_risocleide_status" value="RISOCLEIDE" checked>
+                  <label class="form-check-label" for="encarregada_risocleide_status">Risocleide</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="encarregada_status" id="encarregada_outra_status" value="outra">
+                  <label class="form-check-label" for="encarregada_outra_status">Outra</label>
+                </div>
+                <div id="outra_encarregada_div_status" class="mt-2" style="display: none;">
+                  <input type="text" class="form-control" id="outra_encarregada_status" name="outra_encarregada" placeholder="Digite o nome da encarregada">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">No Sistema? <span class="text-danger">*</span></label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="no_sistema_status" id="no_sistema_sim_status" value="SIM" required>
+                  <label class="form-check-label" for="no_sistema_sim_status">Sim</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="no_sistema_status" id="no_sistema_nao_status" value="NÃO">
+                  <label class="form-check-label" for="no_sistema_nao_status">Não</label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="observacoes_status" class="form-label">Observações (opcional)</label>
+                <textarea class="form-control" id="observacoes_status" name="observacoes" placeholder="Digite observações, se necessário"></textarea>
+              </div>
+              
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Iniciar Contagem</button>
+              </div>
+            </form>
+            
+            <hr>
+            
+            <h4 class="text-center mb-3">Leitos em Andamento</h4>
+            <div id="statusLeitosContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+              <p class="text-center w-100" id="noActiveBeds">Nenhum leito em higienização ativa.</p>
+            </div>
           </div>
           
-          <div class="mb-3">
-            <label class="form-label">Encarregada <span class="text-danger">*</span></label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encarregada_manual" id="encarregada_risocleide_manual" value="RISOCLEIDE" checked>
-              <label class="form-check-label" for="encarregada_risocleide_manual">Risocleide</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encarregada_manual" id="encarregada_outra_manual" value="outra">
-              <label class="form-check-label" for="encarregada_outra_manual">Outra</label>
-            </div>
-            <div id="outra_encarregada_div_manual" class="mt-2" style="display: none;">
-              <input type="text" class="form-control" id="outra_encarregada_manual" name="outra_encarregada" placeholder="Digite o nome da encarregada">
-            </div>
+          <div class="tab-pane fade" id="manual-content" role="tabpanel" aria-labelledby="manual-tab">
+            <h3 class="card-title text-center mt-4" style="color: #131e2a;">Registro Manual (Folha Noturna/Diária)</h3>
+            <form id="registroManualForm">
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <label for="andar_manual" class="form-label">Andar <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="andar_manual" name="andar" placeholder="Ex: 1º Andar" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="leito_manual" class="form-label">Leito <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="leito_manual" name="leito" placeholder="Ex: 101" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="hora_inicio_manual" class="form-label">Hora de Início <span class="text-danger">*</span></label>
+                  <input type="time" class="form-control" id="hora_inicio_manual" name="hora_inicio" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="hora_termino_manual" class="form-label">Hora de Término <span class="text-danger">*</span></label>
+                  <input type="time" class="form-control" id="hora_termino_manual" name="hora_termino" required>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="colaboradora_manual" class="form-label">Colaboradora <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="colaboradora_manual" name="colaboradora" placeholder="Ex: Ana Silva" required>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Encarregada <span class="text-danger">*</span></label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="encarregada_manual" id="encarregada_risocleide_manual" value="RISOCLEIDE" checked>
+                  <label class="form-check-label" for="encarregada_risocleide_manual">Risocleide</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="encarregada_manual" id="encarregada_outra_manual" value="outra">
+                  <label class="form-check-label" for="encarregada_outra_manual">Outra</label>
+                </div>
+                <div id="outra_encarregada_div_manual" class="mt-2" style="display: none;">
+                  <input type="text" class="form-control" id="outra_encarregada_manual" name="outra_encarregada" placeholder="Digite o nome da encarregada">
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">No Sistema? <span class="text-danger">*</span></label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="no_sistema_manual" id="no_sistema_sim_manual" value="SIM" required>
+                  <label class="form-check-label" for="no_sistema_sim_manual">Sim</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="no_sistema_manual" id="no_sistema_nao_manual" value="NÃO">
+                  <label class="form-check-label" for="no_sistema_nao_manual">Não</label>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="observacoes_manual" class="form-label">Observações (opcional)</label>
+                <textarea class="form-control" id="observacoes_manual" name="observacoes" placeholder="Digite observações, se necessário"></textarea>
+              </div>
+              
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Salvar Registro Manual</button>
+              </div>
+            </form>
           </div>
           
-          <div class="mb-3">
-            <label class="form-label">No Sistema? <span class="text-danger">*</span></label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="no_sistema_manual" id="no_sistema_sim_manual" value="SIM" required>
-              <label class="form-check-label" for="no_sistema_sim_manual">Sim</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="no_sistema_manual" id="no_sistema_nao_manual" value="NÃO">
-              <label class="form-check-label" for="no_sistema_nao_manual">Não</label>
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <label for="observacoes_manual" class="form-label">Observações (opcional)</label>
-            <textarea class="form-control" id="observacoes_manual" name="observacoes" placeholder="Digite observações, se necessário"></textarea>
-          </div>
-          
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Salvar Registro Manual</button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
     

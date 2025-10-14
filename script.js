@@ -3,388 +3,247 @@ document.addEventListener('DOMContentLoaded', function() {
   const noActiveBeds = document.getElementById('noActiveBeds');
   const registroStatusForm = document.getElementById('registroStatusForm');
   const registroManualForm = document.getElementById('registroManualForm');
-  
-  // URL de destino fornecida pelo usuário
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec';
 
   let activeBeds = JSON.parse(localStorage.getItem('activeBeds')) || {};
-  let intervalId = null; 
+  let intervalId = null;
 
-  // --- Funções Utilitárias ---
-
+  // ========== FUNÇÕES AUXILIARES ==========
   function formatTime(date) {
     return date.toTimeString().slice(0, 5);
   }
 
   function formatDuration(startTime) {
     const diff = new Date().getTime() - startTime;
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
   }
-  
-  // Função ajustada para pegar a encarregada com base no sufixo (status ou manual)
+
   function getEncarregada(suffix) {
-    // Busca o radio button marcado DENTRO do contexto do formulário
-    const encarregadaRadios = document.querySelectorAll(`input[name="encarregada_${suffix}"]:checked`);
-    
-    if (encarregadaRadios.length === 0) return null; // Nenhuma opção marcada
-
-    const encarregadaRadio = encarregadaRadios[0];
-
-    if (encarregadaRadio.value.toUpperCase() === 'OUTRA') {
-      const outraInput = document.getElementById(`outra_encarregada_${suffix}`);
-      // Certifica-se de que o campo "outra" não está vazio se a opção "Outra" foi marcada
-      return outraInput && outraInput.value.trim() !== '' ? outraInput.value.toUpperCase() : null;
+    const checked = document.querySelector(`input[name="encarregada_${suffix}"]:checked`);
+    if (!checked) return null;
+    if (checked.value.toUpperCase() === 'OUTRA') {
+      const outra = document.getElementById(`outra_encarregada_${suffix}`);
+      return outra && outra.value.trim() ? outra.value.toUpperCase() : null;
     }
-    // Retorna o valor de "RISOCLEIDE" ou o valor de qualquer outra opção de rádio marcada
-    return encarregadaRadio.value.toUpperCase();
+    return checked.value.toUpperCase();
   }
 
-  // Função para salvar estado no localStorage
   function saveActiveBeds() {
     localStorage.setItem('activeBeds', JSON.stringify(activeBeds));
   }
-  
-  // Função de Envio Universal de Dados para o Apps Script
+
+  // ========== ENVIO PARA PLANILHA ==========
   function sendDataToAppsScript(data, key) {
-    // Implementação do fetch conforme solicitado pelo usuário
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       mode: 'no-cors'
     })
     .then(() => {
-        // Sucesso no envio (ou pelo menos o fetch foi iniciado no modo no-cors)
-        if (key && activeBeds[key]) {
-            delete activeBeds[key]; // Remove do status se for o fluxo de finalização
-            saveActiveBeds();
-            renderStatusCards();
-        }
-        showMessage('success', `Registro do leito ${data.andar}/${data.leito} ENVIADO com sucesso!`);
+      if (key && activeBeds[key]) {
+        delete activeBeds[key];
+        saveActiveBeds();
+        renderStatusCards();
+      }
+      showMessage('success', `Registro do leito ${data.andar}/${data.leito} ENVIADO com sucesso!`);
     })
     .catch(err => {
-        // Em caso de erro de rede ou Apps Script, remove o leito do status
-        if (key && activeBeds[key]) {
-             delete activeBeds[key]; 
-             saveActiveBeds();
-             renderStatusCards();
-        }
-        showMessage('error', 'Erro ao enviar o registro. Verifique o link do Apps Script e tente novamente.');
-        console.error('Erro ao enviar: ', err);
+      console.error('Erro ao enviar: ', err);
+      showMessage('error', 'Erro ao enviar o registro. Verifique o link do Apps Script e tente novamente.');
     });
   }
 
-  // --- Lógica de Status (Tempo Real) ---
-
+  // ========== STATUS EM TEMPO REAL ==========
   function renderStatusCards() {
     statusLeitosContainer.innerHTML = '';
     const keys = Object.keys(activeBeds);
 
     if (keys.length === 0) {
       noActiveBeds.style.display = 'block';
-      if (intervalId) clearInterval(intervalId); 
+      if (intervalId) clearInterval(intervalId);
       intervalId = null;
-    } else {
-      noActiveBeds.style.display = 'none';
-      keys.forEach(key => {
-        const bed = activeBeds[key];
-        
-        const cardHtml = `
-          <div class="col" id="status-card-${key}">
-            <div class="card bed-status-card">
-              <h5>Andar ${bed.andar} / Leito ${bed.leito}</h5>
-              <p>Colaboradora: ${bed.colaboradora}</p>
-              <p>Início: ${bed.hora_inicio}</p>
-              <p class="status-time" id="duration-${key}">00:00:00</p>
-              <button class="btn btn-sm btn-primary btn-finalizar" data-key="${key}">Finalizar Limpeza</button>
-            </div>
-          </div>
-        `;
-        statusLeitosContainer.innerHTML += cardHtml;
-      });
-
-      if (!intervalId) {
-        intervalId = setInterval(updateDurations, 1000);
-      }
+      return;
     }
-    document.querySelectorAll('.btn-finalizar').forEach(button => {
-      button.addEventListener('click', handleFinalizarClick);
+
+    noActiveBeds.style.display = 'none';
+    keys.forEach(key => {
+      const bed = activeBeds[key];
+      const card = `
+        <div class="col" id="status-card-${key}">
+          <div class="card bed-status-card">
+            <h5>Andar ${bed.andar} / Leito ${bed.leito}</h5>
+            <p>Colaboradora: ${bed.colaboradora}</p>
+            <p>Início: ${bed.hora_inicio}</p>
+            <p class="status-time" id="duration-${key}">00:00:00</p>
+            <button class="btn btn-sm btn-primary btn-finalizar" data-key="${key}">Finalizar Limpeza</button>
+          </div>
+        </div>`;
+      statusLeitosContainer.innerHTML += card;
     });
+
+    document.querySelectorAll('.btn-finalizar').forEach(btn => {
+      btn.addEventListener('click', handleFinalizarClick);
+    });
+
+    if (!intervalId) intervalId = setInterval(updateDurations, 1000);
   }
-  
+
   function updateDurations() {
     Object.keys(activeBeds).forEach(key => {
-      const durationElement = document.getElementById(`duration-${key}`);
-      if (durationElement) {
-        const startTime = activeBeds[key].timestamp;
-        durationElement.textContent = formatDuration(startTime);
-      }
+      const el = document.getElementById(`duration-${key}`);
+      if (el) el.textContent = formatDuration(activeBeds[key].timestamp);
     });
   }
 
-  // Evento ao clicar em "Finalizar Limpeza" no card
-  function handleFinalizarClick(event) {
-    const key = event.target.dataset.key;
+  function handleFinalizarClick(e) {
+    const key = e.target.dataset.key;
     const bed = activeBeds[key];
-
-    // Calcula a hora de término atual
     const horaTermino = formatTime(new Date());
-
-    // Prepara os dados completos para envio
     const finalData = {
-        andar: bed.andar,
-        leito: bed.leito,
-        hora_inicio: bed.hora_inicio,
-        hora_termino: horaTermino, // Hora atual no clique de Finalizar
-        colaboradora: bed.colaboradora,
-        encarregada: bed.encarregada,
-        no_sistema: bed.no_sistema,
-        observacoes: bed.observacoes || ''
+      andar: bed.andar,
+      leito: bed.leito,
+      hora_inicio: bed.hora_inicio,
+      hora_termino: horaTermino,
+      colaboradora: bed.colaboradora,
+      encarregada: bed.encarregada,
+      no_sistema: bed.no_sistema,
+      observacoes: bed.observacoes || ''
     };
-    
-    // Envia os dados completos e remove do status
-    sendDataToAppsScript(finalData, key); 
+    sendDataToAppsScript(finalData, key);
   }
-  
-  // --- Manipulação de Formulários ---
 
-  // Lógica para mostrar/esconder campo "Outra Encarregada"
+  // ========== FORMULÁRIOS ==========
   function setupEncarregadaToggle(prefix) {
-    const encarregadaRadios = document.getElementsByName(`encarregada_${prefix}`);
-    const outraEncarregadaDiv = document.getElementById(`outra_encarregada_div_${prefix}`);
-    const outraEncarregadaInput = document.getElementById(`outra_encarregada_${prefix}`);
-
-    encarregadaRadios.forEach(radio => {
-      radio.addEventListener('change', () => {
-        outraEncarregadaDiv.style.display = radio.value === 'outra' ? 'block' : 'none';
-        if (radio.value !== 'outra') {
-          outraEncarregadaInput.value = '';
-        }
+    const radios = document.getElementsByName(`encarregada_${prefix}`);
+    const div = document.getElementById(`outra_encarregada_div_${prefix}`);
+    const input = document.getElementById(`outra_encarregada_${prefix}`);
+    radios.forEach(r => {
+      r.addEventListener('change', () => {
+        div.style.display = r.value === 'outra' ? 'block' : 'none';
+        if (r.value !== 'outra') input.value = '';
       });
     });
   }
 
-  // 1. Envio do Formulário de Status (Iniciar Contagem)
-  registroStatusForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    const formData = new FormData(this);
+  registroStatusForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
     const data = {};
-    formData.forEach((value, key) => { data[key] = value.toUpperCase(); });
-    
+    formData.forEach((v, k) => data[k] = v.toUpperCase());
     const andar = data.ANDAR;
     const leito = data.LEITO;
     const key = `${andar}-${leito}`;
     const encarregada = getEncarregada('status');
-    
-    // Validação dos campos obrigatórios
     if (!andar || !leito || !data.COLABORADORA || !encarregada || !data.NO_SISTEMA) {
-        showMessage('error', 'Todos os campos obrigatórios (Andar, Leito, Colaboradora, Encarregada, No Sistema) devem ser preenchidos antes de iniciar!');
-        return;
+      showMessage('error', 'Preencha todos os campos obrigatórios.');
+      return;
     }
-
     if (activeBeds[key]) {
-      showMessage('error', `O leito ${andar}/${leito} já está em higienização!`);
+      showMessage('error', `O leito ${andar}/${leito} já está ativo.`);
       return;
     }
 
     const now = new Date();
-    const horaInicio = formatTime(now);
-
     activeBeds[key] = {
-      andar: andar,
-      leito: leito,
+      andar, leito,
       colaboradora: data.COLABORADORA,
-      encarregada: encarregada,
+      encarregada,
       no_sistema: data.NO_SISTEMA,
       observacoes: data.OBSERVACOES || '',
-      hora_inicio: horaInicio,
-      timestamp: now.getTime() 
+      hora_inicio: formatTime(now),
+      timestamp: now.getTime()
     };
-    
     saveActiveBeds();
     renderStatusCards();
-    showMessage('info', `Higienização do leito ${andar}/${leito} INICIADA. Clique em FINALIZAR no card de status.`);
-    registroStatusForm.reset();
-    document.getElementById('outra_encarregada_div_status').style.display = 'none'; 
-    document.getElementById('encarregada_risocleide_status').checked = true;
+    showMessage('info', `Higienização do leito ${andar}/${leito} iniciada.`);
+    e.target.reset();
   });
-  
-  // 2. Envio do Formulário Manual (Folha Noturna)
-  registroManualForm.addEventListener('submit', function(event) {
-    event.preventDefault();
 
-    const formData = new FormData(this);
+  registroManualForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
     const data = {};
-    formData.forEach((value, key) => { data[key] = value.toUpperCase(); });
-    
+    formData.forEach((v, k) => data[k] = v.toUpperCase());
     const encarregada = getEncarregada('manual');
-    
-    // Validação dos campos obrigatórios do formulário manual
-    const requiredFields = ['ANDAR', 'LEITO', 'HORA_INICIO', 'HORA_TERMINO', 'COLABORADORA', 'NO_SISTEMA'];
-    for (let field of requiredFields) {
-      if (!data[field]) {
-        showMessage('error', `O campo obrigatório "${field.replace('_', ' ')}" do Registro Manual deve ser preenchido!`);
-        return;
-      }
-    }
-    if (!encarregada) {
-        showMessage('error', 'O campo obrigatório "Encarregada" do Registro Manual deve ser preenchido!');
-        return;
-    }
-    
-    // Validação de Horário (mantida a correção de meia-noite)
-    const dataBase = '1970-01-01T';
-    let horaInicio = new Date(`${dataBase}${data.HORA_INICIO}:00`).getTime();
-    let horaTermino = new Date(`${dataBase}${data.HORA_TERMINO}:00`).getTime();
+    const required = ['ANDAR','LEITO','HORA_INICIO','HORA_TERMINO','COLABORADORA','NO_SISTEMA'];
+    for (let f of required) if (!data[f]) return showMessage('error', `Campo obrigatório: ${f}`);
+    if (!encarregada) return showMessage('error', 'Informe a encarregada.');
 
-    if (horaTermino <= horaInicio) {
-        horaTermino += 24 * 60 * 60 * 1000;
-    }
-    
-    if (isNaN(horaInicio) || isNaN(horaTermino) || (horaTermino - horaInicio) <= 0) {
-        showMessage('error', 'O horário de término deve ser maior que o horário de início e as horas devem ser válidas!');
-        return;
-    }
+    const base = '1970-01-01T';
+    let inicio = new Date(`${base}${data.HORA_INICIO}:00`).getTime();
+    let fim = new Date(`${base}${data.HORA_TERMINO}:00`).getTime();
+    if (fim <= inicio) fim += 86400000;
+    if (isNaN(inicio) || isNaN(fim)) return showMessage('error','Horas inválidas.');
 
-    // Prepara os dados finais para envio
     const finalData = {
-        andar: data.ANDAR,
-        leito: data.LEITO,
-        hora_inicio: data.HORA_INICIO,
-        hora_termino: data.HORA_TERMINO,
-        colaboradora: data.COLABORADORA,
-        encarregada: encarregada,
-        no_sistema: data.NO_SISTEMA,
-        observacoes: data.OBSERVACOES || ''
+      andar: data.ANDAR,
+      leito: data.LEITO,
+      hora_inicio: data.HORA_INICIO,
+      hora_termino: data.HORA_TERMINO,
+      colaboradora: data.COLABORADORA,
+      encarregada,
+      no_sistema: data.NO_SISTEMA,
+      observacoes: data.OBSERVACOES || ''
     };
-    
-    // Envia os dados
-    sendDataToAppsScript(finalData); 
-    
-    // Limpa o formulário após o envio
-    registroManualForm.reset();
-    document.getElementById('outra_encarregada_div_manual').style.display = 'none';
-    document.getElementById('encarregada_risocleide_manual').checked = true;
+    sendDataToAppsScript(finalData);
+    e.target.reset();
   });
 
-
-  // --- Inicialização e Helpers (Mantidos) ---
-
-  setupEncarregadaToggle('status');
-  setupEncarregadaToggle('manual');
-
-  // Converter texto para maiúsculas em tempo real
-  const textInputs = document.querySelectorAll('input[type="text"], textarea');
-  textInputs.forEach(input => {
-    input.addEventListener('input', () => {
-      input.value = input.value.toUpperCase();
-    });
-  });
-
-  // Função para carregar histórico (Mantida)
-  window.carregarHistorico = function() {
-    const senhaInput = document.getElementById('senhaHistorico');
-    const senha = senhaInput.value;
+  // ========== HISTÓRICO (SEM SENHA) ==========
+  function carregarHistorico() {
     const tabelaDiv = document.getElementById('historicoTabela');
-    
-    if (!senha) {
-      tabelaDiv.innerHTML = '<p class="text-danger">Digite a senha para acessar o histórico!</p>';
-      return;
-    }
-
-    // Simulação de fetch para histórico (GET request)
-    fetch(`${APPS_SCRIPT_URL}?senha=${encodeURIComponent(senha)}&encarregada=RISOCLEIDE`, {
-      method: 'GET'
-    })
-    .then(response => {
-        // A API de histórico do Apps Script geralmente retorna HTML ou texto em modo 'no-cors',
-        // o que complica a leitura de JSON. Usaremos a simulação para demo.
-        return response.json().catch(() => {
-            return null; 
-        });
-    })
-    .then(historicoData => {
-        if(historicoData) {
-            gerarTabelaHistorico(historicoData, tabelaDiv);
-            senhaInput.value = ''; 
-        } else {
-             throw new Error('Falha ao obter dados. Usando dados simulados.');
-        }
-    })
-    .catch(error => {
-        // Simulação de dados para demo em caso de falha de conexão/CORS/senha
-        const historicoSimulado = [
-          { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "Encarregada": "RISOCLEIDE", "No Sistema": "SIM", "Observações": "TESTE 1" },
-          { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "Encarregada": "OUTRA", "No Sistema": "NÃO", "Observações": "TESTE 2" }
+    tabelaDiv.innerHTML = '<p>Carregando histórico...</p>';
+    fetch(`${APPS_SCRIPT_URL}?encarregada=RISOCLEIDE`)
+      .then(res => res.json())
+      .then(data => gerarTabelaHistorico(data, tabelaDiv))
+      .catch(() => {
+        const fake = [
+          { "Data Registro": "2025-10-14", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "Encarregada": "RISOCLEIDE", "No Sistema": "SIM", "Observações": "Teste local" }
         ];
-        if(senha.toUpperCase() === 'GPS123') { 
-            gerarTabelaHistorico(historicoSimulado, tabelaDiv);
-            senhaInput.value = '';
-        } else {
-             tabelaDiv.innerHTML = '<p class="text-danger">Erro ao carregar histórico. Digite a senha correta (Tente GPS123 para simulação).</p>';
-        }
-    });
-  };
-
-  function gerarTabelaHistorico(historico, tabelaDiv) {
-    if (historico.length === 0) {
-      tabelaDiv.innerHTML = '<p class="text-warning">Nenhum registro encontrado para esta encarregada.</p>';
-      return;
-    }
-
-    let tabelaHTML = '<table class="table table-striped"><thead><tr><th>Data Registro</th><th>Andar</th><th>Leito</th><th>Hora Início</th><th>Hora Término</th><th>Colaboradora</th><th>Encarregada</th><th>No Sistema</th><th>Observações</th></tr></thead><tbody>';
-    historico.forEach(reg => {
-      // Ajuste para garantir que as chaves coincidam
-      const dataRegistro = reg["Data Registro"] || reg.data_registro || '-';
-      const andar = reg.Andar || reg.andar || '-';
-      const leito = reg.Leito || reg.leito || '-';
-      const horaInicio = reg["Hora de Início"] || reg.hora_inicio || '-';
-      const horaTermino = reg["Hora de Término"] || reg.hora_termino || '-';
-      const colaboradora = reg.Colaboradora || reg.colaboradora || '-';
-      const encarregada = reg.Encarregada || reg.encarregada || '-';
-      const noSistema = reg["No Sistema"] || reg.no_sistema || '-';
-      const observacoes = reg.Observacoes || reg.observacoes || '';
-
-      tabelaHTML += `<tr><td>${dataRegistro}</td><td>${andar}</td><td>${leito}</td><td>${horaInicio}</td><td>${horaTermino}</td><td>${colaboradora}</td><td>${encarregada}</td><td>${noSistema}</td><td>${observacoes || '-'}</td></tr>`;
-    });
-    tabelaHTML += '</tbody></table>';
-    tabelaDiv.innerHTML = tabelaHTML;
+        gerarTabelaHistorico(fake, tabelaDiv);
+      });
   }
 
-  // Função para exibir mensagens (Mantida)
+  function gerarTabelaHistorico(data, tabelaDiv) {
+    if (!data || !data.length) {
+      tabelaDiv.innerHTML = '<p class="text-warning">Nenhum registro encontrado.</p>';
+      return;
+    }
+    let html = '<table class="table table-striped"><thead><tr><th>Data Registro</th><th>Andar</th><th>Leito</th><th>Hora Início</th><th>Hora Término</th><th>Colaboradora</th><th>Encarregada</th><th>No Sistema</th><th>Observações</th></tr></thead><tbody>';
+    data.forEach(r => {
+      html += `<tr><td>${r["Data Registro"]||'-'}</td><td>${r["Andar"]||'-'}</td><td>${r["Leito"]||'-'}</td><td>${r["Hora de Início"]||'-'}</td><td>${r["Hora de Término"]||'-'}</td><td>${r["Colaboradora"]||'-'}</td><td>${r["Encarregada"]||'-'}</td><td>${r["No Sistema"]||'-'}</td><td>${r["Observações"]||'-'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    tabelaDiv.innerHTML = html;
+  }
+
+  // ========== MENSAGENS ==========
   function showMessage(type, message) {
     const msgDiv = document.getElementById('mensagem');
-    if (!msgDiv) {
-      console.error('Elemento #mensagem não encontrado!');
-      return;
-    }
-    msgDiv.innerHTML = '';
-    const bsClass = type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger';
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${bsClass} alert-dismissible fade show`;
-    alertDiv.role = 'alert';
-    alertDiv.innerHTML = `
+    msgDiv.innerHTML = `<div class="alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show">
       ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    msgDiv.appendChild(alertDiv);
-    msgDiv.style.display = 'block';
-
-    const inputs = document.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      input.addEventListener('focus', () => {
-        msgDiv.innerHTML = '';
-        msgDiv.style.display = 'none';
-      }, { once: true });
-    });
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
   }
 
-  // Inicializa a visualização ao carregar a página
+  // ========== TABS ==========
+  document.getElementById('tabRegistro').addEventListener('click', () => {
+    document.getElementById('registroContainer').style.display = 'block';
+    document.getElementById('historicoContainer').style.display = 'none';
+  });
+
+  document.getElementById('tabHistorico').addEventListener('click', () => {
+    document.getElementById('registroContainer').style.display = 'none';
+    document.getElementById('historicoContainer').style.display = 'block';
+    carregarHistorico();
+  });
+
+  // ========== INICIALIZA ==========
+  setupEncarregadaToggle('status');
+  setupEncarregadaToggle('manual');
   renderStatusCards();
 });

@@ -26,15 +26,19 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Função ajustada para pegar a encarregada com base no sufixo (status ou manual)
   function getEncarregada(suffix) {
+    // Busca o radio button marcado DENTRO do contexto do formulário
     const encarregadaRadios = document.querySelectorAll(`input[name="encarregada_${suffix}"]:checked`);
-    if (encarregadaRadios.length === 0) return null;
     
+    if (encarregadaRadios.length === 0) return null; // Nenhuma opção marcada
+
     const encarregadaRadio = encarregadaRadios[0];
 
-    if (encarregadaRadio.value === 'outra') {
+    if (encarregadaRadio.value.toUpperCase() === 'OUTRA') {
       const outraInput = document.getElementById(`outra_encarregada_${suffix}`);
-      return outraInput ? outraInput.value.toUpperCase() : null;
+      // Certifica-se de que o campo "outra" não está vazio se a opção "Outra" foi marcada
+      return outraInput && outraInput.value.trim() !== '' ? outraInput.value.toUpperCase() : null;
     }
+    // Retorna o valor de "RISOCLEIDE" ou o valor de qualquer outra opção de rádio marcada
     return encarregadaRadio.value.toUpperCase();
   }
 
@@ -294,18 +298,14 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Simulação de fetch para histórico (GET request, note que aqui o modo 'no-cors' não traz o JSON)
+    // Simulação de fetch para histórico (GET request)
     fetch(`${APPS_SCRIPT_URL}?senha=${encodeURIComponent(senha)}&encarregada=RISOCLEIDE`, {
       method: 'GET'
     })
     .then(response => {
-        // Devido ao 'no-cors' no Apps Script, esta checagem pode falhar, dependendo da configuração
-        // do seu script GET. O tratamento de erro aqui é focado na demo.
-        if (!response.ok) {
-             // throw new Error('Erro na requisição.');
-        }
+        // A API de histórico do Apps Script geralmente retorna HTML ou texto em modo 'no-cors',
+        // o que complica a leitura de JSON. Usaremos a simulação para demo.
         return response.json().catch(() => {
-            // Se falhar o JSON (típico de no-cors), retorna um placeholder para o catch
             return null; 
         });
     })
@@ -314,12 +314,11 @@ document.addEventListener('DOMContentLoaded', function() {
             gerarTabelaHistorico(historicoData, tabelaDiv);
             senhaInput.value = ''; 
         } else {
-             // Caso a requisição GET falhe no CORS, usa a simulação
              throw new Error('Falha ao obter dados. Usando dados simulados.');
         }
     })
     .catch(error => {
-        // Simulação de dados para demo em caso de erro no CORS/App Script
+        // Simulação de dados para demo em caso de falha de conexão/CORS/senha
         const historicoSimulado = [
           { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "Encarregada": "RISOCLEIDE", "No Sistema": "SIM", "Observações": "TESTE 1" },
           { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "Encarregada": "OUTRA", "No Sistema": "NÃO", "Observações": "TESTE 2" }
@@ -328,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
             gerarTabelaHistorico(historicoSimulado, tabelaDiv);
             senhaInput.value = '';
         } else {
-             tabelaDiv.innerHTML = '<p class="text-danger">Erro ao carregar histórico ou senha incorreta: ' + error.message + '</p>';
+             tabelaDiv.innerHTML = '<p class="text-danger">Erro ao carregar histórico. Digite a senha correta (Tente GPS123 para simulação).</p>';
         }
     });
   };

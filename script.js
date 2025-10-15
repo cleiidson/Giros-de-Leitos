@@ -35,10 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (encarregadaRadio.value.toUpperCase() === 'OUTRA') {
       const outraInput = document.getElementById(`outra_encarregada_${suffix}`);
-      // Certifica-se de que o campo "outra" não está vazio se a opção "Outra" foi marcada
       return outraInput && outraInput.value.trim() !== '' ? outraInput.value.toUpperCase() : null;
     }
-    // Retorna o valor de "RISOCLEIDE" ou o valor de qualquer outra opção de rádio marcada
     return encarregadaRadio.value.toUpperCase();
   }
   
@@ -295,15 +293,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // FUNÇÃO DE HISTÓRICO SIMPLIFICADA (SEM SENHA)
+  // Função para carregar histórico (SIMPLIFICADA, SEM SENHA)
   window.carregarHistorico = function() {
     const tabelaDiv = document.getElementById('historicoTabela');
     tabelaDiv.innerHTML = '<p class="text-center text-muted">Carregando histórico...</p>';
 
-    // Usa uma senha simulada (ou parâmetro vazio) para a requisição GET
-    const senhaSimulada = 'GPS123';
-
-    fetch(`${APPS_SCRIPT_URL}?senha=${encodeURIComponent(senhaSimulada)}&encarregada=RISOCLEIDE`, {
+    // Usa um parâmetro de busca (GET) com valor simulado para o Apps Script
+    fetch(`${APPS_SCRIPT_URL}?encarregada=RISOCLEIDE`, {
         method: 'GET'
     })
     .then(response => {
@@ -338,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function gerarTabelaHistorico(historico, tabelaDiv) {
     if (historico.length === 0) {
-      tabelaDiv.innerHTML = '<p class="text-warning">Nenhum registro encontrado para esta encarregada.</p>';
+      tabelaDiv.innerHTML = '<p class="text-warning">Nenhum registro encontrado.</p>';
       return;
     }
 

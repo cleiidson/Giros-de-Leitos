@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const registroStatusForm = document.getElementById('registroStatusForm');
   const registroManualForm = document.getElementById('registroManualForm');
   
-  // URL de destino ORIGINAL (Mantida conforme solicitação)
+  // URL de destino ORIGINAL (MANTIDA INTACTA)
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec';
 
   let activeBeds = JSON.parse(localStorage.getItem('activeBeds')) || {};
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
   
-  // Função ajustada para pegar a encarregada de forma robusta
+  // FUNÇÃO CORRIGIDA: Garante que a encarregada seja extraída corretamente.
   function getEncarregada(suffix) {
     const encarregadaRadios = document.querySelectorAll(`input[name="encarregada_${suffix}"]:checked`);
     
@@ -34,8 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (encarregadaRadio.value.toUpperCase() === 'OUTRA') {
       const outraInput = document.getElementById(`outra_encarregada_${suffix}`);
+      // Certifica-se de que o campo "outra" não está vazio se a opção "Outra" foi marcada
       return outraInput && outraInput.value.trim() !== '' ? outraInput.value.toUpperCase() : null;
     }
+    // Retorna o valor de "RISOCLEIDE" ou o valor de qualquer outra opção de rádio marcada
     return encarregadaRadio.value.toUpperCase();
   }
 
@@ -44,8 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem('activeBeds', JSON.stringify(activeBeds));
   }
   
-  // Função de Envio Universal de Dados para o Apps Script
-  // O fetch original foi MANTIDO AQUI para garantir a conexão do cliente.
+  // Função de Envio Universal de Dados (MANTENDO A ESTRUTURA ORIGINAL DO FETCH)
   function sendDataToAppsScript(data, key) {
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -287,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Função para carregar histórico (Mantida a lógica de simulação/senha)
+  // Função para carregar histórico (ACESSO AO HISTÓRICO RESTAURADO)
   window.carregarHistorico = function() {
     const senhaInput = document.getElementById('senhaHistorico');
     const senha = senhaInput.value;

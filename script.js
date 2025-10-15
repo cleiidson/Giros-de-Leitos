@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const noActiveBeds = document.getElementById('noActiveBeds');
   const registroStatusForm = document.getElementById('registroStatusForm');
   const registroManualForm = document.getElementById('registroManualForm');
+  const historicoModal = document.getElementById('historicoModal');
   
   // URL de destino ORIGINAL (MANTIDA INTACTA)
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec';
@@ -39,6 +40,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // Retorna o valor de "RISOCLEIDE" ou o valor de qualquer outra opção de rádio marcada
     return encarregadaRadio.value.toUpperCase();
+  }
+  
+  // FUNÇÃO CORRIGIDA: Garante que o No Sistema seja extraído corretamente.
+  function getNoSistema(suffix) {
+    const noSistemaRadio = document.querySelector(`input[name="no_sistema_${suffix}"]:checked`);
+    return noSistemaRadio ? noSistemaRadio.value.toUpperCase() : null;
   }
 
   // Função para salvar estado no localStorage
@@ -179,9 +186,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const leito = data.LEITO;
     const key = `${andar}-${leito}`;
     const encarregada = getEncarregada('status');
+    const noSistema = getNoSistema('status'); // Usando a função corrigida
     
     // Validação dos campos obrigatórios
-    if (!andar || !leito || !data.COLABORADORA || !encarregada || !data.NO_SISTEMA) {
+    if (!andar || !leito || !data.COLABORADORA || !encarregada || !noSistema) {
         showMessage('error', 'Todos os campos obrigatórios (Andar, Leito, Colaboradora, Encarregada, No Sistema) devem ser preenchidos antes de iniciar!');
         return;
     }
@@ -199,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
       leito: leito,
       colaboradora: data.COLABORADORA,
       encarregada: encarregada,
-      no_sistema: data.NO_SISTEMA,
+      no_sistema: noSistema,
       observacoes: data.OBSERVACOES || '',
       hora_inicio: horaInicio,
       timestamp: now.getTime() 
@@ -212,8 +220,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Limpeza
     registroStatusForm.reset();
     document.getElementById('outra_encarregada_div_status').style.display = 'none'; 
-    // Como removemos o 'checked' do HTML, não precisamos mais forçar o check aqui.
-    // document.getElementById('encarregada_risocleide_status').checked = true;
   });
   
   // 2. Envio do Formulário Manual (Folha Noturna)
@@ -225,17 +231,18 @@ document.addEventListener('DOMContentLoaded', function() {
     formData.forEach((value, key) => { data[key] = value.toUpperCase(); });
     
     const encarregada = getEncarregada('manual');
+    const noSistema = getNoSistema('manual');
     
     // Validação dos campos obrigatórios do formulário manual
-    const requiredFields = ['ANDAR', 'LEITO', 'HORA_INICIO', 'HORA_TERMINO', 'COLABORADORA', 'NO_SISTEMA'];
+    const requiredFields = ['ANDAR', 'LEITO', 'HORA_INICIO', 'HORA_TERMINO', 'COLABORADORA'];
     for (let field of requiredFields) {
       if (!data[field]) {
         showMessage('error', `O campo obrigatório "${field.replace('_', ' ')}" do Registro Manual deve ser preenchido!`);
         return;
       }
     }
-    if (!encarregada) {
-        showMessage('error', 'O campo obrigatório "Encarregada" do Registro Manual deve ser preenchido!');
+    if (!encarregada || !noSistema) {
+        showMessage('error', 'Os campos obrigatórios "Encarregada" e "No Sistema" do Registro Manual devem ser preenchidos!');
         return;
     }
     
@@ -262,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hora_termino: data.HORA_TERMINO,
         colaboradora: data.COLABORADORA,
         encarregada: encarregada,
-        no_sistema: data.NO_SISTEMA,
+        no_sistema: noSistema,
         observacoes: data.OBSERVACOES || ''
     };
     
@@ -272,8 +279,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Limpa o formulário após o envio
     registroManualForm.reset();
     document.getElementById('outra_encarregada_div_manual').style.display = 'none';
-    // Como removemos o 'checked' do HTML, não precisamos mais forçar o check aqui.
-    // document.getElementById('encarregada_risocleide_manual').checked = true;
   });
 
 
@@ -290,20 +295,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Função para carregar histórico (ACESSO AO HISTÓRICO RESTAURADO)
+  // FUNÇÃO DE HISTÓRICO SIMPLIFICADA (SEM SENHA)
   window.carregarHistorico = function() {
-    const senhaInput = document.getElementById('senhaHistorico');
-    const senha = senhaInput.value;
     const tabelaDiv = document.getElementById('historicoTabela');
-    
-    if (!senha) {
-      tabelaDiv.innerHTML = '<p class="text-danger">Digite a senha para acessar o histórico!</p>';
-      return;
-    }
+    tabelaDiv.innerHTML = '<p class="text-center text-muted">Carregando histórico...</p>';
 
-    // Simulação de fetch para histórico (GET request)
-    fetch(`${APPS_SCRIPT_URL}?senha=${encodeURIComponent(senha)}&encarregada=RISOCLEIDE`, {
-      method: 'GET'
+    // Usa uma senha simulada (ou parâmetro vazio) para a requisição GET
+    const senhaSimulada = 'GPS123';
+
+    fetch(`${APPS_SCRIPT_URL}?senha=${encodeURIComponent(senhaSimulada)}&encarregada=RISOCLEIDE`, {
+        method: 'GET'
     })
     .then(response => {
         return response.json().catch(() => {
@@ -313,25 +314,27 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(historicoData => {
         if(historicoData) {
             gerarTabelaHistorico(historicoData, tabelaDiv);
-            senhaInput.value = ''; 
         } else {
              throw new Error('Falha ao obter dados. Usando dados simulados.');
         }
     })
     .catch(error => {
-        // Simulação de dados para demo em caso de falha de conexão/CORS/senha
+        // Simulação de dados para visualização imediata
         const historicoSimulado = [
           { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "08:00", "Hora de Término": "09:00", "Colaboradora": "ANA", "Encarregada": "RISOCLEIDE", "No Sistema": "SIM", "Observações": "TESTE 1" },
           { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "Encarregada": "OUTRA", "No Sistema": "NÃO", "Observações": "TESTE 2" }
         ];
-        if(senha.toUpperCase() === 'GPS123') { 
-            gerarTabelaHistorico(historicoSimulado, tabelaDiv);
-            senhaInput.value = '';
-        } else {
-             tabelaDiv.innerHTML = '<p class="text-danger">Erro ao carregar histórico. Digite a senha correta (Tente GPS123 para simulação).</p>';
-        }
+        gerarTabelaHistorico(historicoSimulado, tabelaDiv);
     });
   };
+  
+  // Adiciona listener para carregar histórico automaticamente ao abrir o modal
+  if (historicoModal) {
+    historicoModal.addEventListener('shown.bs.modal', function () {
+        window.carregarHistorico();
+    });
+  }
+
 
   function gerarTabelaHistorico(historico, tabelaDiv) {
     if (historico.length === 0) {

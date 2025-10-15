@@ -212,7 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Limpeza
     registroStatusForm.reset();
     document.getElementById('outra_encarregada_div_status').style.display = 'none'; 
-    document.getElementById('encarregada_risocleide_status').checked = true;
+    // Como removemos o 'checked' do HTML, não precisamos mais forçar o check aqui.
+    // document.getElementById('encarregada_risocleide_status').checked = true;
   });
   
   // 2. Envio do Formulário Manual (Folha Noturna)
@@ -271,7 +272,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Limpa o formulário após o envio
     registroManualForm.reset();
     document.getElementById('outra_encarregada_div_manual').style.display = 'none';
-    document.getElementById('encarregada_risocleide_manual').checked = true;
+    // Como removemos o 'checked' do HTML, não precisamos mais forçar o check aqui.
+    // document.getElementById('encarregada_risocleide_manual').checked = true;
   });
 
 

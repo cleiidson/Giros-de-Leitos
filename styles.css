@@ -89,16 +89,6 @@ input:focus, textarea:focus {
   margin: 0;
 }
 
-/* Novo estilo para melhorar o layout dos radios/checkboxes */
-.form-check {
-  margin-bottom: 5px; /* Adiciona um pequeno espaçamento entre as opções */
-}
-
-/* Melhorar a visualização da tabela dentro do modal */
-#historicoTabela {
-  margin-top: 15px; /* Espaçamento superior para separar do botão "Carregar Histórico" */
-}
-
 #historicoTabela table {
   width: 100%;
   border-collapse: collapse;
@@ -121,48 +111,4 @@ input:focus, textarea:focus {
 
 #historicoTabela tr:hover {
   background-color: #f5f5f5;
-}
-
-
-/* --- Estilos para o Status de Leitos (Novo) --- */
-
-.bed-status-card {
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  background-color: #f8d7da; /* Fundo vermelho claro para status "Em Andamento" */
-  border-left: 5px solid #dc3545; /* Borda lateral vermelha */
-  color: #495057;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%; /* Garante altura uniforme */
-}
-
-.bed-status-card h5 {
-  color: #dc3545;
-  font-weight: 700;
-  margin-bottom: 5px;
-}
-
-.bed-status-card p {
-    margin-bottom: 3px;
-    font-size: 0.9rem;
-}
-
-.bed-status-card .status-time {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #000;
-  text-align: center;
-  background-color: #fff;
-  border-radius: 5px;
-  padding: 5px;
-  border: 1px solid #dc3545;
-}
-
-.btn-finalizar {
-    width: 100%;
-    margin-top: 10px;
 }

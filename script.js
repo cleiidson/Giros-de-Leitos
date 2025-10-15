@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
   registroStatusForm.addEventListener('submit', function(event) {
     event.preventDefault();
     
+    // Usando a lógica do FormData para os campos simples (que é o que o cliente tinha)
     const formData = new FormData(this);
     const data = {};
     formData.forEach((value, key) => { data[key] = value.toUpperCase(); });
@@ -224,6 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
   registroManualForm.addEventListener('submit', function(event) {
     event.preventDefault();
 
+    // Usando a lógica do FormData para os campos simples (que é o que o cliente tinha)
     const formData = new FormData(this);
     const data = {};
     formData.forEach((value, key) => { data[key] = value.toUpperCase(); });
@@ -298,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabelaDiv = document.getElementById('historicoTabela');
     tabelaDiv.innerHTML = '<p class="text-center text-muted">Carregando histórico...</p>';
 
-    // Usa um parâmetro de busca (GET) com valor simulado para o Apps Script
+    // Simulação de fetch para histórico (GET request)
     fetch(`${APPS_SCRIPT_URL}?encarregada=RISOCLEIDE`, {
         method: 'GET'
     })

@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mode: 'no-cors'
             });
 
-            showMessage('success', `Registro manual enviado com sucesso! Duração calculada: ${duracaoMinutos} minutos.`);
+            showMessage('success', `Registro manual enviado com sucesso! Duração:`);
             
             registroForm.reset();
             const defaultRadio = document.getElementById('encarregada_risocleide');

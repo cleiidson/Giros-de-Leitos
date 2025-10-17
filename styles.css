@@ -1,114 +1,192 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #131e2a; /* Azul escuro como exemplo */
-  color: #333;
-  margin: 0;
-  padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #131e2a; /* Azul escuro */
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    /* Garante que o container não estique demais em telas grandes */
 }
 
 h1 {
-  color: #FFFFFF; /* Branco para contraste */
-  text-align: center;
-  margin-bottom: 20px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    color: #FFFFFF; /* Branco para contraste */
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .card {
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  background-color: #FFFFFF; /* Fundo branco */
-  padding: 20px;
-  border: 2px solid #111112; /* Borda escura */
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background-color: #FFFFFF; /* Fundo branco */
+    padding: 20px;
+    border: 2px solid #111112; /* Borda escura */
 }
 
+/* --- Estilos de Formulário --- */
 label {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 input, textarea {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus, textarea:focus {
-  border-color: #1E90FF; /* Azul da borda ao focar */
-  box-shadow: 0 0 6px rgba(30,144,255,0.3);
-  outline: none;
+    border-color: #1E90FF; /* Azul da borda ao focar */
+    box-shadow: 0 0 6px rgba(30,144,255,0.3);
+    outline: none;
+}
+
+/* --- Estilos de Botão --- */
+.btn-primary, .btn-success, .btn-danger {
+    font-weight: bold;
+    padding: 12px;
+    font-size: 1rem;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .btn-primary {
-  background-color: #1E90FF; /* Azul do botão */
-  border-color: #1E90FF;
-  font-weight: bold;
-  padding: 12px;
-  font-size: 1rem;
-  transition: background-color 0.3s, transform 0.2s;
+    background-color: #1E90FF;
+    border-color: #1E90FF;
 }
 
 .btn-primary:hover {
-  background-color: #104E8B; /* Tom mais escuro de azul */
-  border-color: #104E8B;
-  transform: scale(1.02);
+    background-color: #104E8B;
+    border-color: #104E8B;
+    transform: scale(1.02);
+}
+
+.btn-success {
+    background-color: #28a745; /* Verde para Iniciar */
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #1e7e34;
+    border-color: #1c7430;
+    transform: scale(1.02);
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Vermelho para Finalizar (Parar) */
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    transform: scale(1.02);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
+    background-color: #6c757d;
+    border-color: #6c757d;
 }
 
 .btn-secondary:hover {
-  background-color: #5a6268;
-  border-color: #545b62;
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
-#mensagem {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  min-width: 300px;
-  font-weight: bold;
-  padding: 10px 15px;
-  border-radius: 6px;
-  background-color: rgba(176, 175, 175, 0.95);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  display: none; /* Será exibido via JS */
+/* --- Estilos Específicos da Aplicação --- */
+
+/* Estilo para a divisão do Modo Manual/Noturno */
+#horariosManual {
+    background-color: #fff3cd; /* Amarelo claro para destaque (alerta) */
+    border-color: #ffc107 !important; 
+    color: #856404;
 }
+
+/* Contêiner da lista de leitos ativos (Modo Tempo Real) */
+#leitosAtivosContainer {
+    padding: 0;
+}
+
+/* Estilo individual de cada leito na lista */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 12px 20px;
+}
+
+/* Badge de Andar/Leito na lista */
+.list-group-item .badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+}
+
+/* Botão de alternar modo */
+#alternarModoBtn {
+    border: none;
+    color: #c4c4c4; /* Cinza claro para combinar com o fundo escuro */
+    font-size: 0.9rem;
+    background: transparent;
+}
+#alternarModoBtn:hover {
+    color: #FFFFFF;
+}
+
+
+/* --- Estilos de Mensagem e Outros Componentes --- */
+#mensagem {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.95); /* Fundo da mensagem claro */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    display: none;
+}
+
+/* Garante que o alerta do Bootstrap tenha a cor correta */
+#mensagem .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+#mensagem .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+#mensagem .alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
 
 #outra_encarregada_div {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
+/* Estilos legados mantidos (embora a lógica JS não use mais a classe hidden, é bom manter) */
 #outra_encarregada_div.hidden {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  padding: 0;
-  margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
 }
 
+/* --- Estilos de Histórico (Modal) --- */
 #historicoTabela table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 #historicoTabela th, #historicoTabela td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    font-size: 0.9em;
 }
 
 #historicoTabela th {
-  background-color: #f2f2f2;
-  font-weight: bold;
+    background-color: #1e90ff; /* Azul para cabeçalho */
+    color: #FFFFFF;
+    font-weight: bold;
 }
 
 #historicoTabela tr:nth-child(even) {
-  background-color: #f9f9f9;
+    background-color: #f9f9f9;
 }
 
 #historicoTabela tr:hover {
-  background-color: #f5f5f5;
+    background-color: #e9ecef;
 }

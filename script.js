@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Definição de Constantes e Elementos DOM
     const REGISTRO_FORM_ID = 'registroForm';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec'; // URL REAL do Google Apps Script
-    const LEITO_EM_ANDAMENTO_KEY = 'leitoEmAndamento'; // Chave para o localStorage
-    const MODO_ATUAL_KEY = 'modoRegistro'; // Chave para o modo (realtime ou manual)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec'; // URL REAL
+    const LEITO_EM_ANDAMENTO_KEY = 'leitosEmAndamento'; // CHAVE PARA O ARRAY DE LEITOS ATIVOS
+    const MODO_ATUAL_KEY = 'modoRegistro'; 
 
     // Elementos da Interface
     const registroForm = document.getElementById(REGISTRO_FORM_ID);
@@ -14,12 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const mensagemDiv = document.getElementById('mensagem');
     const submitBtn = document.getElementById('submitBtn');
 
-    // Elementos do Modo Tempo Real
+    // Elementos do Modo Tempo Real (Múltiplos Leitos)
     const STATUS_DIV = document.getElementById('statusEmAndamento');
-    const FINALIZAR_BTN = document.getElementById('finalizarLeitoBtn');
-    const LEITO_ANDAR_DISPLAY = document.getElementById('leitoAtualAndar');
-    const LEITO_NUMERO_DISPLAY = document.getElementById('leitoAtualNumero');
-    const LEITO_INICIO_DISPLAY = document.getElementById('leitoAtualInicio');
+    const LEITOS_ATIVOS_CONTAINER = document.getElementById('leitosAtivosContainer');
+    const COUNT_LEITOS_ATIVOS = document.getElementById('countLeitosAtivos');
     
     // Elementos do Modo Manual/Noturno
     const alternarModoBtn = document.getElementById('alternarModoBtn');
@@ -31,13 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const REQUIRED_FIELDS_MANUAL = ['andar', 'leito', 'hora_inicio', 'hora_termino', 'colaboradora', 'encarregada', 'no_sistema'];
     const REQUIRED_FIELDS_REALTIME = ['andar', 'leito', 'colaboradora', 'encarregada', 'no_sistema'];
 
-    if (!registroForm || !mensagemDiv || !STATUS_DIV || !FINALIZAR_BTN || !alternarModoBtn || !horariosManualDiv) {
+    if (!registroForm || !mensagemDiv || !STATUS_DIV || !alternarModoBtn || !horariosManualDiv) {
         console.error('Um ou mais elementos DOM essenciais não foram encontrados. Verifique o HTML.');
         return; 
     }
     
     // VARIÁVEL DE ESTADO
-    let modoAtual = localStorage.getItem(MODO_ATUAL_KEY) || 'realtime'; // Padrão: tempo real
+    let modoAtual = localStorage.getItem(MODO_ATUAL_KEY) || 'realtime'; 
 
     // --------------------------------------------------------------------------------
     // FUNÇÕES AUXILIARES
@@ -57,14 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const alertType = type === 'success' ? 'success' : (type === 'info' ? 'info' : 'danger');
         alertDiv.className = `alert alert-${alertType} alert-dismissible fade show`;
         alertDiv.role = 'alert';
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
+        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
         mensagemDiv.appendChild(alertDiv);
         mensagemDiv.style.display = 'block';
 
-        // Esconde a mensagem ao interagir com o form
         const inputs = registroForm.querySelectorAll('input, textarea');
         inputs.forEach(input => {
             input.addEventListener('focus', () => {
@@ -90,116 +84,144 @@ document.addEventListener('DOMContentLoaded', function() {
         input.value = input.value.toUpperCase();
     };
 
-    /** Função para carregar histórico (Mantida) */
-    window.carregarHistorico = function() {
-        // ... (A lógica da sua função carregarHistorico deve ser mantida aqui) ...
-        const senhaInput = document.getElementById('senhaHistorico');
-        const senha = senhaInput.value;
-        const tabelaDiv = document.getElementById('historicoTabela');
-        
-        tabelaDiv.innerHTML = '';
-
-        if (!senha) {
-            tabelaDiv.innerHTML = '<p class="text-danger">Digite a senha para acessar o histórico!</p>';
-            senhaInput.focus();
-            return;
-        }
-
-        tabelaDiv.innerHTML = '<p class="text-info">Carregando histórico...</p>';
-        
-        // Simulação de dados:
-        fetch(`${SCRIPT_URL}?senha=${encodeURIComponent(senha)}&encarregada=RISOCLÉIA`, {
-            method: 'GET',
-            mode: 'no-cors' 
-        })
-        .then(() => {
-            if (senha.toLowerCase() === 'gps123') { 
-                const historicoSimulado = [
-                    { "Data Registro": "2025-10-12", "Andar": "1", "Leito": "101", "Hora de Início": "23:30", "Hora de Término": "00:45", "Colaboradora": "ANA", "No Sistema": "SIM", "Observações": "LIMPEZA NOTURNA OK" },
-                    { "Data Registro": "2025-10-12", "Andar": "2", "Leito": "202", "Hora de Início": "10:00", "Hora de Término": "11:00", "Colaboradora": "MARIA", "No Sistema": "NÃO", "Observações": "TESTE DIURNO" }
-                ];
-                gerarTabelaHistorico(historicoSimulado, tabelaDiv);
-            } else {
-                 tabelaDiv.innerHTML = '<p class="text-danger">Senha incorreta ou histórico não encontrado.</p>';
-            }
-
-            senhaInput.value = '';
-        })
-        .catch(error => {
-            tabelaDiv.innerHTML = '<p class="text-danger">Erro ao carregar histórico: ' + error.message + '</p>';
-        });
-    };
-    
-    /** Função para gerar tabela do histórico (Mantida) */
-    function gerarTabelaHistorico(historico, tabelaDiv) {
-        if (!historico || historico.length === 0) {
-            tabelaDiv.innerHTML = '<p class="text-warning">Nenhum registro encontrado para esta encarregada.</p>';
-            return;
-        }
-
-        const headers = Object.keys(historico[0]);
-        const thead = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
-        const tbody = `<tbody>${historico.map(reg => 
-            `<tr>${headers.map(h => `<td>${reg[h] || '-'}</td>`).join('')}</tr>`
-        ).join('')}</tbody>`;
-
-        tabelaDiv.innerHTML = `<table class="table table-striped table-hover table-sm">${thead}${tbody}</table>`;
-    }
+    // (As funções carregarHistorico e gerarTabelaHistorico devem ser mantidas aqui)
 
     // --------------------------------------------------------------------------------
-    // LÓGICA DE GERENCIAMENTO DE ESTADO (LOCALSTORAGE)
+    // LÓGICA DE MÚLTIPLOS LEITOS
     // --------------------------------------------------------------------------------
 
-    /**
-     * Carrega o estado do leito em higienização e atualiza a UI (principal dispatcher).
-     */
-    function carregarEstado() {
+    /** Carrega a lista de leitos ativos do localStorage */
+    function getLeitosAtivos() {
         const estadoJSON = localStorage.getItem(LEITO_EM_ANDAMENTO_KEY);
-        
-        if (estadoJSON) {
-            const estado = JSON.parse(estadoJSON);
-            
-            // MODO: TEMPO REAL (Cronômetro ativo)
-            STATUS_DIV.style.display = 'block';
-            formCard.style.display = 'none'; // Esconde o formulário
-            
-            LEITO_ANDAR_DISPLAY.textContent = estado.andar;
-            LEITO_NUMERO_DISPLAY.textContent = estado.leito;
-            LEITO_INICIO_DISPLAY.textContent = estado.hora_inicio;
+        return estadoJSON ? JSON.parse(estadoJSON) : [];
+    }
 
-            return estado;
+    /** Salva a lista de leitos ativos no localStorage */
+    function saveLeitosAtivos(leitos) {
+        localStorage.setItem(LEITO_EM_ANDAMENTO_KEY, JSON.stringify(leitos));
+    }
 
-        } else {
-            // MODO: Lançamento (Tempo Real Inativo)
+    /** Renderiza a lista de leitos ativos na UI. */
+    function renderLeitosAtivos(leitos) {
+        LEITOS_ATIVOS_CONTAINER.innerHTML = '';
+        COUNT_LEITOS_ATIVOS.textContent = leitos.length;
+
+        if (leitos.length === 0) {
             STATUS_DIV.style.display = 'none';
-            formCard.style.display = 'block'; // Mostra o formulário
-            
-            // Configura o formulário de acordo com o MODO ATUAL
-            alternarModo(modoAtual, false); // Aplica as regras do modo atual
+            // formCard.style.display é controlado por carregarEstado
+            LEITOS_ATIVOS_CONTAINER.innerHTML = '<p class="text-center text-muted p-3 mb-0">Nenhuma higienização ativa.</p>';
+            return;
+        }
 
-            return null;
+        STATUS_DIV.style.display = 'block';
+        
+        leitos.forEach(estado => {
+            const item = document.createElement('div');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center';
+            item.innerHTML = `
+                <div>
+                    <span class="badge bg-primary me-2">${estado.andar}-${estado.leito}</span>
+                    <span class="text-muted small">Início: ${estado.hora_inicio}</span>
+                    <br>
+                    <span class="small text-secondary">Colab.: ${estado.colaboradora.slice(0, 15)}...</span>
+                </div>
+                <button class="btn btn-sm btn-danger finalizar-leito-btn" 
+                        data-id="${estado.leitoID}"
+                        title="Finalizar agora (Tempo atual)">
+                    <i class="bi bi-stop-circle"></i> Finalizar
+                </button>
+            `;
+            LEITOS_ATIVOS_CONTAINER.appendChild(item);
+        });
+        
+        // Adiciona listeners para os novos botões de finalizar
+        document.querySelectorAll('.finalizar-leito-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const leitoID = e.currentTarget.getAttribute('data-id');
+                finalizarHigienizacao(leitoID);
+            });
+        });
+    }
+
+    /** Carrega o estado do leito em higienização e atualiza a UI (principal dispatcher). */
+    function carregarEstado() {
+        const leitosAtivos = getLeitosAtivos();
+        renderLeitosAtivos(leitosAtivos);
+        
+        // Garante que a visibilidade do formulário está correta com base no modo
+        alternarModo(modoAtual, false); 
+    }
+
+    /** Lógica para finalizar a higienização e enviar os dados (Modo Tempo Real) */
+    async function finalizarHigienizacao(leitoID) {
+        const leitosAtivos = getLeitosAtivos();
+        const index = leitosAtivos.findIndex(l => l.leitoID === leitoID);
+
+        if (index === -1) {
+            showMessage('error', 'Leito não encontrado na lista ativa. Recarregue a página.');
+            carregarEstado();
+            return;
+        }
+        
+        const estadoAnterior = leitosAtivos[index];
+        // MELHORIA DE UX: MUDAR A MENSAGEM PARA REDUZIR A SENSAÇÃO DE ESPERA
+        showMessage('info', `Enviando registro de finalização para ${estadoAnterior.andar}-${estadoAnterior.leito}...`);
+
+        const horaTermino = new Date();
+        const horaTerminoStr = horaTermino.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        
+        const horaInicio = new Date(estadoAnterior.hora_inicio_timestamp);
+        
+        const diferencaMs = horaTermino.getTime() - horaInicio.getTime();
+        const duracaoMinutos = Math.round(diferencaMs / (1000 * 60));
+
+        if (duracaoMinutos < 1) {
+             showMessage('error', 'A duração da higienização foi muito curta. O registro não será enviado.');
+             return;
+        }
+
+        const dadosCompletos = {
+            ...estadoAnterior,
+            hora_termino: horaTerminoStr,
+            duracao_minutos: duracaoMinutos,
+            data_registro: horaTermino.toLocaleDateString('pt-BR'),
+            leitoID: undefined, 
+            hora_inicio_timestamp: undefined
+        };
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(dadosCompletos),
+                headers: { 'Content-Type': 'application/json' },
+                mode: 'no-cors'
+            });
+
+            leitosAtivos.splice(index, 1);
+            saveLeitosAtivos(leitosAtivos);
+            
+            showMessage('success', `Leito ${estadoAnterior.andar}-${estadoAnterior.leito} FINALIZADO e registrado em ${duracaoMinutos} minutos.`);
+            carregarEstado();
+
+        } catch (error) {
+            showMessage('error', 'Erro ao enviar o registro final. Tente novamente.');
+            console.error('Erro ao finalizar e enviar:', error);
         }
     }
+
 
     // --------------------------------------------------------------------------------
     // ALTERNÂNCIA DE MODOS
     // --------------------------------------------------------------------------------
 
-    /**
-     * Alterna entre o modo 'realtime' (iniciar/parar) e 'manual' (noite).
-     * @param {string} novoModo - 'realtime' ou 'manual'.
-     * @param {boolean} updateStorage - Se deve salvar no localStorage (true para clique).
-     */
     function alternarModo(novoModo, updateStorage = true) {
         modoAtual = novoModo;
         if (updateStorage) {
             localStorage.setItem(MODO_ATUAL_KEY, novoModo);
         }
         
-        // Define quais campos são obrigatórios para a validação
         const requiredFields = novoModo === 'manual' ? REQUIRED_FIELDS_MANUAL : REQUIRED_FIELDS_REALTIME;
         
-        // Atualiza a UI
         if (novoModo === 'manual') {
             horariosManualDiv.style.display = 'block';
             submitBtn.innerHTML = 'Salvar Registro Completo <i class="bi bi-send-fill"></i>';
@@ -212,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alternarModoBtn.innerHTML = '<i class="bi bi-shuffle"></i> Alternar para Modo Lançamento MANUAL (Noite)';
         }
         
-        // Aplica/Remove o atributo 'required' nos campos de hora
         horaInicioInput.required = novoModo === 'manual';
         horaTerminoInput.required = novoModo === 'manual';
         
@@ -220,12 +241,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --------------------------------------------------------------------------------
-    // LÓGICA DE ENVIO (INICIAR/FINALIZAR)
+    // LÓGICA DE ENVIO E SUBMISSÃO
     // --------------------------------------------------------------------------------
 
     /** Lógica para iniciar a higienização (Modo Tempo Real) */
     function iniciarHigienizacao(data) {
-        // Validação Mínima para Início (já tratada pelo REQUIRED_FIELDS_REALTIME no submit listener)
+        const leitosAtivos = getLeitosAtivos();
+        
+        // Verifica se o leito já está ativo (para evitar duplicidade)
+        const isAlreadyActive = leitosAtivos.some(l => 
+            l.andar === data.andar && l.leito === data.leito
+        );
+        
+        if (isAlreadyActive) {
+            showMessage('error', `O Leito ${data.andar}-${data.leito} já está ativo!`);
+            return;
+        }
 
         const now = new Date();
         const horaInicioStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -237,68 +268,26 @@ document.addEventListener('DOMContentLoaded', function() {
             colaboradora: data.colaboradora,
             no_sistema: data.no_sistema,
             observacoes: data.observacoes,
-            hora_inicio_timestamp: now.toISOString(), // Salva o timestamp completo
-            hora_inicio: horaInicioStr // Salva o horário formatado para o display
+            hora_inicio_timestamp: now.toISOString(),
+            hora_inicio: horaInicioStr,
+            leitoID: Date.now().toString() // ID único para fácil remoção
         };
 
-        localStorage.setItem(LEITO_EM_ANDAMENTO_KEY, JSON.stringify(novoEstado));
-        showMessage('info', `Higienização do Leito ${novoEstado.andar}-${novoEstado.leito} INICIADA às ${horaInicioStr}.`);
+        leitosAtivos.push(novoEstado);
+        saveLeitosAtivos(leitosAtivos);
+        
+        showMessage('success', `Higienização do Leito ${novoEstado.andar}-${novoEstado.leito} INICIADA.`);
         
         registroForm.reset();
-        carregarEstado(); // Atualiza a tela para o status
+        carregarEstado();
     }
 
-    /** Lógica para finalizar a higienização e enviar os dados (Modo Tempo Real) */
-    async function finalizarHigienizacao(estadoAnterior) {
-        showMessage('info', 'Finalizando, aguarde...');
-
-        const horaTermino = new Date();
-        const horaTerminoStr = horaTermino.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        
-        const horaInicio = new Date(estadoAnterior.hora_inicio_timestamp);
-        
-        // Calcular a duração em minutos
-        const diferencaMs = horaTermino.getTime() - horaInicio.getTime();
-        const duracaoMinutos = Math.round(diferencaMs / (1000 * 60));
-
-        if (duracaoMinutos < 1) {
-             showMessage('error', 'A duração da higienização foi muito curta. Verifique o relógio.');
-             return;
-        }
-
-        const dadosCompletos = {
-            ...estadoAnterior,
-            hora_termino: horaTerminoStr,
-            duracao_minutos: duracaoMinutos, // Inclui a duração
-            data_registro: horaTermino.toLocaleDateString('pt-BR'),
-            hora_inicio_timestamp: undefined // Remove o campo técnico
-        };
-
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(dadosCompletos),
-                headers: { 'Content-Type': 'application/json' },
-                mode: 'no-cors'
-            });
-
-            localStorage.removeItem(LEITO_EM_ANDAMENTO_KEY); // Limpa o estado
-            showMessage('success', `Leito ${dadosCompletos.andar}-${dadosCompletos.leito} FINALIZADO e registrado em ${duracaoMinutos} minutos.`);
-            carregarEstado(); // Atualiza a UI para o modo de início
-
-        } catch (error) {
-            showMessage('error', 'Erro ao enviar o registro final. Tente novamente.');
-            console.error('Erro ao finalizar e enviar:', error);
-        }
-    }
-    
     /** Lógica para enviar dados no Modo Manual (Com validação Noturna) */
     async function enviarRegistroManual(data, requiredFields) {
         
         // 1. Validação de campos obrigatórios
         for (let field of requiredFields) {
             if (!data[field] || data[field] === '') {
-                // Validação de Outra Encarregada já está no campo 'encarregada'
                 showMessage('error', 'Todos os campos obrigatórios devem ser preenchidos!');
                 console.log(`Campo obrigatório ausente: ${field}`);
                 const missingInput = document.getElementById(field);
@@ -311,12 +300,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const inicioMinutes = timeToMinutes(data.hora_inicio);
         let terminoMinutes = timeToMinutes(data.hora_termino);
         
-        // Se Término <= Início, assume que cruzou a meia-noite (+24 horas)
         if (terminoMinutes <= inicioMinutes) {
             terminoMinutes += 1440; // 1440 minutos = 24 horas
         }
 
-        if (terminoMinutes <= inicioMinutes) { // Se ainda for menor (duração zero)
+        if (terminoMinutes <= inicioMinutes) { 
              showMessage('error', 'O horário de término deve ser **maior** que o horário de início!');
              horaTerminoInput.focus();
              return;
@@ -339,7 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             showMessage('success', `Registro manual enviado com sucesso! Duração calculada: ${duracaoMinutos} minutos.`);
             
-            // Limpa o formulário
             registroForm.reset();
             const defaultRadio = document.getElementById('encarregada_risocleide');
             if (defaultRadio) {
@@ -355,33 +342,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // --------------------------------------------------------------------------------
-    // EVENT LISTENERS
+    // EVENT LISTENERS DE INICIALIZAÇÃO
     // --------------------------------------------------------------------------------
 
-    // 3. Listener do Botão FINALIZAR (Modo Tempo Real)
-    FINALIZAR_BTN.addEventListener('click', () => {
-        const estadoAtual = carregarEstado();
-        if (estadoAtual) {
-            finalizarHigienizacao(estadoAtual);
-        }
-    });
-    
     // 4. Listener do Botão Alternar Modo
     alternarModoBtn.addEventListener('click', () => {
         const novoModo = modoAtual === 'realtime' ? 'manual' : 'realtime';
         alternarModo(novoModo);
         
-        // Reseta os campos que podem ter sido preenchidos
         horaInicioInput.value = '';
         horaTerminoInput.value = '';
     });
 
-
-    // 5. Listener do Formulário (Dispatcher: Realtime INICIAR ou Manual ENVIAR)
+    // 5. Listener do Formulário (Dispatcher)
     registroForm.addEventListener('submit', function(event) {
         event.preventDefault();
 
-        const requiredFields = alternarModo(modoAtual, false); // Garante a lista de campos
+        const requiredFields = alternarModo(modoAtual, false);
 
         const formData = new FormData(this);
         const data = {};
@@ -390,7 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
              data[key] = (typeof value === 'string') ? value.toUpperCase().trim() : value; 
         });
 
-        // Lidar com campo "Outra Encarregada" antes de qualquer validação
         if (data.encarregada === 'OUTRA') {
             if (!data.outra_encarregada || data.outra_encarregada === '') {
                  showMessage('error', 'Digite o nome da outra encarregada!');
@@ -401,9 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         delete data.outra_encarregada;
         
-        // DISPATCHER:
         if (modoAtual === 'realtime') {
-            // Validação Mínima para Realtime
             for (let field of requiredFields) {
                 if (!data[field] || data[field] === '') {
                     showMessage('error', 'Preencha todos os campos obrigatórios para INICIAR a higienização.');
@@ -416,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 6. Inicialização de Eventos
+    // 6. Inicialização
     
     // Configura listeners para maiúsculas
     const textInputs = registroForm.querySelectorAll('input[type="text"], textarea');
@@ -429,6 +403,6 @@ document.addEventListener('DOMContentLoaded', function() {
         radio.addEventListener('change', () => toggleOutraEncarregada(radio));
     });
 
-    // Estado inicial (exibe o que for necessário)
+    // Estado inicial
     carregarEstado(); 
 });

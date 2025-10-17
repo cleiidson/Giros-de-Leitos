@@ -1,107 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Giro de Leito</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Giro de Leito</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-  <div class="container mt-4 mb-4">
-    <h1 class="text-center mb-4">Registro de Giro de Leito</h1>
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <form id="registroForm">
-          <div class="mb-3">
-            <label for="andar" class="form-label">Andar <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="andar" name="andar" placeholder="Ex: 1º Andar" required>
-          </div>
-          <div class="mb-3">
-            <label for="leito" class="form-label">Leito <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="leito" name="leito" placeholder="Ex: 101" required>
-          </div>
-          <div class="mb-3">
-            <label for="hora_inicio" class="form-label">Hora de Início <span class="text-danger">*</span></label>
-            <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
-          </div>
-          <div class="mb-3">
-            <label for="hora_termino" class="form-label">Hora de Término <span class="text-danger">*</span></label>
-            <input type="time" class="form-control" id="hora_termino" name="hora_termino" required>
-          </div>
-          <div class="mb-3">
-            <label for="colaboradora" class="form-label">Colaboradora <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="colaboradora" name="colaboradora" placeholder="Ex: Ana Silva" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Encarregada <span class="text-danger">*</span></label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encarregada" id="encarregada_risocleide" value="RISOCLEIDE" checked>
-              <label class="form-check-label" for="encarregada_risocleide">Risocleide</label>
+  <div class="container mt-4 mb-4">
+    <h1 class="text-center mb-4">Registro de Giro de Leito</h1>
+    
+    <div id="statusEmAndamento" class="card shadow mb-4" style="display: none;">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="bi bi-clock-fill"></i> Higienização em Andamento
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-center align-items-center mb-3">
+                <span class="fs-5 me-2">Leito:</span> 
+                <span class="fs-3 fw-bold text-primary me-3" id="leitoAtualAndar"></span>
+                <span class="fs-3 fw-bold text-primary me-3">-</span>
+                <span class="fs-3 fw-bold text-primary" id="leitoAtualNumero"></span>
             </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encarregada" id="encarregada_outra" value="outra">
-              <label class="form-check-label" for="encarregada_outra">Outra</label>
-            </div>
-            <div id="outra_encarregada_div" class="mt-2" style="display: none;">
-              <input type="text" class="form-control" id="outra_encarregada" name="outra_encarregada" placeholder="Digite o nome da encarregada">
-            </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">No Sistema? <span class="text-danger">*</span></label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="no_sistema" id="no_sistema_sim" value="SIM" required>
-              <label class="form-check-label" for="no_sistema_sim">Sim</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="no_sistema" id="no_sistema_nao" value="NÃO">
-              <label class="form-check-label" for="no_sistema_nao">Não</label>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="observacoes" class="form-label">Observações (opcional)</label>
-            <textarea class="form-control" id="observacoes" name="observacoes" placeholder="Digite observações, se necessário"></textarea>
-          </div>
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Salvar Registro</button>
-          </div>
-        </form>
-      </div>
+            <p class="card-text text-center text-muted">
+                Início: <span class="fw-bold" id="leitoAtualInicio"></span>
+            </p>
+            
+            <button id="finalizarLeitoBtn" class="btn btn-danger btn-lg w-100 mt-3">
+                <i class="bi bi-stop-circle"></i> Finalizar Limpeza Agora
+            </button>
+            <p class="text-center text-secondary mt-2 mb-0" style="font-size: 0.8rem;">
+                *Ao finalizar, o horário atual será registrado.
+            </p>
+        </div>
     </div>
-    <div class="text-center mt-3">
-      <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#historicoModal">
-        Ver Histórico
-      </button>
+    
+    <div class="text-center mb-3">
+        <button id="alternarModoBtn" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-shuffle"></i> Alternar para Modo Lançamento Manual
+        </button>
     </div>
-    <div id="mensagem" class="mt-3"></div>
-  </div>
 
-  <!-- Modal para Histórico -->
-  <div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="historicoModalLabel">Histórico de Registros - Risocleide</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="card shadow-sm" id="formCard">
+      <div class="card-body">
+        
+        <div id="horariosManual" class="border border-danger p-3 mb-4 rounded" style="display: none;">
+            <p class="fw-bold text-danger mb-2">MODO MANUAL (Para registros da noite)</p>
+            <div class="mb-3">
+            <label for="hora_inicio" class="form-label">Hora de Início <span class="text-danger">*</span></label>
+            <input type="time" class="form-control" id="hora_inicio" name="hora_inicio">
+          </div>
+          <div class="mb-3">
+            <label for="hora_termino" class="form-label">Hora de Término <span class="text-danger">*</span></label>
+            <input type="time" class="form-control" id="hora_termino" name="hora_termino">
+          </div>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="senhaHistorico" class="form-label">Senha para acessar o histórico:</label>
-            <input type="password" class="form-control" id="senhaHistorico" placeholder="Digite a senha">
-            <button type="button" class="btn btn-primary mt-2" onclick="carregarHistorico()">Carregar Histórico</button>
-          </div>
-          <div id="historicoTabela" class="table-responsive">
-            <!-- Tabela será inserida aqui via JS -->
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+        
+        <form id="registroForm">
+          <div class="mb-3">
+            <label for="andar" class="form-label">Andar <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="andar" name="andar" placeholder="Ex: 1º Andar" required>
+          </div>
+          <div class="mb-3">
+            <label for="leito" class="form-label">Leito <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="leito" name="leito" placeholder="Ex: 101" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="colaboradora" class="form-label">Colaboradora <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="colaboradora" name="colaboradora" placeholder="Ex: Ana Silva" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Encarregada <span class="text-danger">*</span></label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="encarregada" id="encarregada_risocleide" value="RISOCLEIDE" checked>
+              <label class="form-check-label" for="encarregada_risocleide">Risocleide</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="encarregada" id="encarregada_outra" value="outra">
+              <label class="form-check-label" for="encarregada_outra">Outra</label>
+            </div>
+            <div id="outra_encarregada_div" class="mt-2" style="display: none;">
+              <input type="text" class="form-control" id="outra_encarregada" name="outra_encarregada" placeholder="Digite o nome da encarregada">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">No Sistema? <span class="text-danger">*</span></label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="no_sistema" id="no_sistema_sim" value="SIM" required>
+              <label class="form-check-label" for="no_sistema_sim">Sim</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="no_sistema" id="no_sistema_nao" value="NÃO">
+              <label class="form-check-label" for="no_sistema_nao">Não</label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="observacoes" class="form-label">Observações (opcional)</label>
+            <textarea class="form-control" id="observacoes" name="observacoes" placeholder="Digite observações, se necessário"></textarea>
+          </div>
+          <div class="d-grid">
+            <button type="submit" id="submitBtn" class="btn btn-success btn-lg">
+                <i class="bi bi-play-circle"></i> Iniciar Higienização Agora
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="text-center mt-3">
+      <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#historicoModal">
+        Ver Histórico
+      </button>
+    </div>
+    <div id="mensagem" class="mt-3"></div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="script.js"></script>
+    <div class="modal fade" id="historicoModal" tabindex="-1" aria-labelledby="historicoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="historicoModalLabel">Histórico de Registros - Risocleide</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="senhaHistorico" class="form-label">Senha para acessar o histórico:</label>
+            <input type="password" class="form-control" id="senhaHistorico" placeholder="Digite a senha">
+            <button type="button" class="btn btn-primary mt-2" onclick="carregarHistorico()">Carregar Histórico</button>
+          </div>
+          <div id="historicoTabela" class="table-responsive">
+                      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

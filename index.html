@@ -31,20 +31,20 @@
     <div class="card shadow-sm" id="formCard">
       <div class="card-body">
         
-        <div id="horariosManual" class="border border-danger p-3 mb-3 rounded" style="display: none;">
-            <p class="fw-bold text-danger mb-2">MODO MANUAL (Para registros da noite)</p>
-            <div class="mb-2">
-            <label for="hora_inicio" class="form-label">Hora de Início <span class="text-danger">*</span></label>
-            <input type="time" class="form-control" id="hora_inicio" name="hora_inicio">
-          </div>
-          <div class="mb-2">
-            <label for="hora_termino" class="form-label">Hora de Término <span class="text-danger">*</span></label>
-            <input type="time" class="form-control" id="hora_termino" name="hora_termino">
-          </div>
-        </div>
-        
         <form id="registroForm">
-          <div class="mb-2">
+
+            <div id="horariosManual" class="border border-danger p-3 mb-3 rounded" style="display: none;">
+                <p class="fw-bold text-danger mb-2">MODO MANUAL (Para registros da noite)</p>
+                <div class="mb-2">
+                    <label for="hora_inicio" class="form-label">Hora de Início <span class="text-danger">*</span></label>
+                    <input type="time" class="form-control" id="hora_inicio" name="hora_inicio">
+                </div>
+                <div class="mb-2">
+                    <label for="hora_termino" class="form-label">Hora de Término <span class="text-danger">*</span></label>
+                    <input type="time" class="form-control" id="hora_termino" name="hora_termino">
+                </div>
+            </div>
+                      <div class="mb-2">
             <label for="andar" class="form-label">Andar <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="andar" name="andar" placeholder="Ex: 1º Andar" required>
           </div>

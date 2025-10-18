@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         leitosAtivos.push(novoEstado);
         saveLeitosAtivos(leitosAtivos);
         
-        showMessage('success', `Higienização do Leito ${novoEstado.andar}-${novoEstado.leito} INICIADA.`);
+        showMessage('success', `Higienização do Leito ${novoEstado.leito} INICIADA.`);
         
         registroForm.reset();
         carregarEstado();

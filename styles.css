@@ -19,8 +19,7 @@ h1 {
 .card {
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    /* CORRIGIDO: Usando um branco sólido (ou cinza claro se preferir) */
-    background-color: #FFFFFF; 
+    background-color: #FFFFFF; /* Fundo branco corrigido */
     padding: 20px;
     border: 2px solid #111112; /* Borda escura */
     margin-bottom: 20px;
@@ -44,7 +43,7 @@ input, textarea {
     width: 100%;
     box-sizing: border-box;
     
-    /* ALTERAÇÃO: Cor de fundo dos inputs/textareas para um branco mais suave */
+    /* Cor de fundo dos inputs/textareas para um branco mais suave */
     background-color: #EEEEEE; 
 }
 
@@ -144,23 +143,28 @@ input:focus, textarea:focus {
 /* 2. ANIMAÇÃO E ESTILOS DE STATUS ATIVO (MÚLTIPLOS LEITOS) */
 /* ==================================== */
 
-/* Keyframes para a animação da borda (sutilmente pulsante) */
+/* Keyframes para a animação da borda (INTENSIFICADA E MAIS RÁPIDA) */
 @keyframes pulseBorder {
     0% {
-        box-shadow: 0 0 0 rgba(0, 188, 212, 0.4), 0 4px 12px rgba(0,0,0,0.3);
+        /* Estado inicial: Sombra do card + um brilho sutil */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 rgba(0, 188, 212, 0); 
     }
     50% {
-        box-shadow: 0 0 8px rgba(0, 188, 212, 0.8), 0 4px 12px rgba(0,0,0,0.3);
+        /* Estado de pico: Brilho forte e cor de "esterilização" (Ciano Clínico) */
+        box-shadow: 0 0 10px rgba(0, 188, 212, 1), 0 0 25px rgba(0, 188, 212, 0.7);
     }
     100% {
-        box-shadow: 0 0 0 rgba(0, 188, 212, 0.4), 0 4px 12px rgba(0,0,0,0.3);
+        /* Volta ao estado inicial */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 rgba(0, 188, 212, 0);
     }
 }
 
 /* Aplica a animação ao card de status */
 #statusEmAndamento {
     border: 2px solid #00BCD4; /* Borda clínica clara */
-    animation: pulseBorder 3s infinite ease-in-out; /* Aplica a animação de pulso */
+    transition: all 0.5s ease;
+    /* MUDANÇA PRINCIPAL: Pulsa mais rápido (1.5s) e de forma infinita */
+    animation: pulseBorder 1.5s infinite ease-in-out; 
 }
 
 #statusEmAndamento .card-header {

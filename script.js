@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. Definição de Constantes e Elementos DOM
     const REGISTRO_FORM_ID = 'registroForm';
     // Mantenha sua URL REAL aqui
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDD6F4QaynjKq3d9YWxhMOzMCoa1T9TE_uJ2KjRgUrOBUIZdrAzRWjpjIQFXjm2QPJZg/exec'; 
     const LEITO_EM_ANDAMENTO_KEY = 'leitosEmAndamento'; // CHAVE PARA O ARRAY DE LEITOS ATIVOS
     const MODO_ATUAL_KEY = 'modoRegistro'; 
 

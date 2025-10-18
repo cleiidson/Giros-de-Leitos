@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
             leitosAtivos.splice(index, 1);
             saveLeitosAtivos(leitosAtivos);
             
-            showMessage('success', `Leito ${estadoAnterior.andar}-${estadoAnterior.leito} FINALIZADO e registrado em ${duracaoMinutos} minutos.`);
+            showMessage('success', `Leito - ${estadoAnterior.leito} FINALIZADO e HIGIENIZADO em ${duracaoMinutos} minutos.`);
             carregarEstado();
 
         } catch (error) {
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
         );
         
         if (isAlreadyActive) {
-            showMessage('error', `O Leito ${data.andar}-${data.leito} já está ativo!`);
+            showMessage('error', `O Leito - ${data.leito} já está ativo!`);
             return;
         }
 
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         leitosAtivos.push(novoEstado);
         saveLeitosAtivos(leitosAtivos);
         
-        showMessage('success', `Higienização do Leito ${novoEstado.andar}-${novoEstado.leito} INICIADA.`);
+        showMessage('success', `Higienização do Leito ${novoEstado.leito} INICIADA.`);
         
         registroForm.reset();
         carregarEstado();

@@ -1,3 +1,6 @@
+/* ==================================== */
+/* 1. ESTILOS GERAIS E TEMA BASE */
+/* ==================================== */
 body {
     font-family: Arial, sans-serif;
     background-color: #131e2a; /* Azul escuro */
@@ -20,16 +23,16 @@ h1 {
     padding: 20px;
     border: 2px solid #111112; /* Borda escura */
     margin-bottom: 20px;
-
+    /* Adição para o efeito Pulse do Status Ativo */
+    transition: all 0.5s ease;
 }
 
-/* --- Estilos de Formulário --- */
+/* --- Estilos de Formulário e Foco Temático (Ciano Clínico) --- */
 label {
     font-weight: 600;
     margin-bottom: 8px;
     display: block;
     color: #111112;
-
 }
 
 input, textarea {
@@ -43,29 +46,36 @@ input, textarea {
 }
 
 input:focus, textarea:focus {
-    border-color: #1E90FF; /* Azul da borda ao focar */
-    box-shadow: 0 0 6px rgba(30,144,255,0.3);
+    /* Cor Ciano Clínico para foco (Higiene/Precisão) */
+    border-color: #00BCD4; 
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6); 
     outline: none;
 }
 
 /* Estilo para a divisão do Modo Manual/Noturno */
 #horariosManual {
-    background-color: #fff3cd; /* Amarelo claro para destaque (alerta) */
-    border-color: #ffc107 !important; 
-    color: #856404;
+    background-color: #ffcccc; /* Vermelho suave para alerta manual */
+    border-color: #dc3545 !important; 
+    color: #58151c;
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
 }
 
-/* --- Estilos de Botão --- */
-.btn-primary, .btn-success, .btn-danger {
+/* --- Estilos de Botão e Animações --- */
+.btn-primary, .btn-success, .btn-danger, .btn-secondary {
     font-weight: bold;
     padding: 12px;
     font-size: 1rem;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra mais sutil */
+}
+
+/* Efeito sutil de pressionar em todos os botões */
+.btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .btn-primary {
@@ -77,11 +87,10 @@ input:focus, textarea:focus {
     background-color: #104E8B;
     border-color: #104E8B;
     transform: scale(1.02);
-
 }
 
 .btn-success {
-    background-color: #28a745; /* Verde para Iniciar */
+    background-color: #28a745;
     border-color: #28a745;
 }
 
@@ -92,7 +101,7 @@ input:focus, textarea:focus {
 }
 
 .btn-danger {
-    background-color: #dc3545; /* Vermelho para Finalizar (Parar) */
+    background-color: #dc3545; 
     border-color: #dc3545;
 }
 
@@ -111,32 +120,59 @@ input:focus, textarea:focus {
     background-color: #5a6268;
     border-color: #545b62;
     transform: scale(1.02);
-
 }
 
 /* Botão de alternar modo */
 #alternarModoBtn {
     border: none;
-    color: #c4c4c4; /* Cinza claro para combinar com o fundo escuro */
+    color: #c4c4c4;
     font-size: 0.9rem;
     background: transparent;
     cursor: pointer;
     transition: color 0.3s;
+    box-shadow: none; /* Remove sombra dos botões normais */
+    transform: none;
 }
 #alternarModoBtn:hover {
-    color: #FFFFFF; /* Branco ao passar o mouse */
+    color: #FFFFFF;
 }
 
-/* --- Estilos de Múltiplos Leitos --- */
+/* ==================================== */
+/* 2. ANIMAÇÃO E ESTILOS DE STATUS ATIVO (MÚLTIPLOS LEITOS) */
+/* ==================================== */
 
-/* Contêiner da lista de leitos ativos (Modo Tempo Real) */
+/* Keyframes para a animação da borda (sutilmente pulsante) */
+@keyframes pulseBorder {
+    0% {
+        box-shadow: 0 0 0 rgba(0, 188, 212, 0.4), 0 4px 12px rgba(0,0,0,0.3);
+    }
+    50% {
+        box-shadow: 0 0 8px rgba(0, 188, 212, 0.8), 0 4px 12px rgba(0,0,0,0.3);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(0, 188, 212, 0.4), 0 4px 12px rgba(0,0,0,0.3);
+    }
+}
+
+/* Aplica a animação ao card de status */
+#statusEmAndamento {
+    border: 2px solid #00BCD4; /* Borda clínica clara */
+    animation: pulseBorder 3s infinite ease-in-out; /* Aplica a animação de pulso */
+}
+
+#statusEmAndamento .card-header {
+    background-color: #00BCD4 !important; /* Mudar a cor do header para ciano */
+    color: white !important;
+}
+
+/* --- Lista de Leitos --- */
+
 #leitosAtivosContainer {
     max-height: 400px;
     overflow-y: auto;
     padding: 0;
 }
 
-/* Estilo individual de cada leito na lista */
 .list-group-item {
     border-left: none;
     border-right: none;
@@ -145,7 +181,6 @@ input:focus, textarea:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
 }
 
 /* Badge de Andar/Leito na lista */
@@ -153,9 +188,19 @@ input:focus, textarea:focus {
     font-size: 0.9em;
     padding: 0.5em 0.8em;
     border-radius: 12px;
-    background-color: #1E90FF; /* Azul para destaque */
+    background-color: #1E90FF;
     color: #fff;
 }
+
+/* Efeito hover e focus no botão "Finalizar" */
+.finalizar-leito-btn {
+    transition: transform 0.2s, background-color 0.3s;
+}
+
+.finalizar-leito-btn:hover {
+    transform: scale(1.05); /* Leve crescimento ao passar o mouse */
+}
+
 
 /* --- Estilos de Mensagem --- */
 #mensagem {
@@ -167,12 +212,11 @@ input:focus, textarea:focus {
     font-weight: bold;
     padding: 10px 15px;
     border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.95); /* Fundo da mensagem claro */
+    background-color: rgba(255, 255, 255, 0.95);
     box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     display: none;
 }
 
-/* Garante que o alerta do Bootstrap tenha a cor correta */
 #mensagem .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 #mensagem .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
 #mensagem .alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
@@ -180,4 +224,3 @@ input:focus, textarea:focus {
 #outra_encarregada_div {
     transition: all 0.3s ease;
 }
-

@@ -19,11 +19,11 @@ h1 {
 .card {
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    background-color: rgb(132, 125, 125)ff; /* Fundo cinza */
+    /* CORRIGIDO: Usando um branco sólido (ou cinza claro se preferir) */
+    background-color: #FFFFFF; 
     padding: 20px;
     border: 2px solid #111112; /* Borda escura */
     margin-bottom: 20px;
-    /* Adição para o efeito Pulse do Status Ativo */
     transition: all 0.5s ease;
 }
 
@@ -43,6 +43,9 @@ input, textarea {
     transition: border-color 0.3s, box-shadow 0.3s;
     width: 100%;
     box-sizing: border-box;
+    
+    /* ALTERAÇÃO: Cor de fundo dos inputs/textareas para um branco mais suave */
+    background-color: #EEEEEE; 
 }
 
 input:focus, textarea:focus {
@@ -69,7 +72,7 @@ input:focus, textarea:focus {
     font-size: 1rem;
     transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sombra mais sutil */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 /* Efeito sutil de pressionar em todos os botões */
@@ -130,7 +133,7 @@ input:focus, textarea:focus {
     background: transparent;
     cursor: pointer;
     transition: color 0.3s;
-    box-shadow: none; /* Remove sombra dos botões normais */
+    box-shadow: none;
     transform: none;
 }
 #alternarModoBtn:hover {

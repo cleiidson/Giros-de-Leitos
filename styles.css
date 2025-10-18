@@ -19,7 +19,7 @@ h1 {
 .card {
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    background-color: #FFFFFF; /* Fundo branco */
+    background-color: rgb(132, 125, 125)ff; /* Fundo cinza */
     padding: 20px;
     border: 2px solid #111112; /* Borda escura */
     margin-bottom: 20px;

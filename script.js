@@ -49,24 +49,38 @@ document.addEventListener('DOMContentLoaded', function() {
         return hours * 60 + minutes;
     };
 
-    /** Exibe alertas para o usuário */
+    /** * Implementação da melhoria: Exibe alertas de forma automática e
+     * os esconde após 3 segundos com efeito fade-out.
+     */
     function showMessage(type, message) {
         mensagemDiv.innerHTML = '';
         const alertDiv = document.createElement('div');
         const alertType = type === 'success' ? 'success' : (type === 'info' ? 'info' : 'danger');
+        
+        // Usamos 'show' e 'fade' para animar
         alertDiv.className = `alert alert-${alertType} alert-dismissible fade show`;
         alertDiv.role = 'alert';
         alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+        
+        // Limpamos o conteúdo anterior e mostramos o novo alerta
+        mensagemDiv.innerHTML = '';
         mensagemDiv.appendChild(alertDiv);
         mensagemDiv.style.display = 'block';
 
-        const inputs = registroForm.querySelectorAll('input, textarea');
-        inputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                mensagemDiv.innerHTML = '';
+        // Timer para fechar automaticamente após 3 segundos
+        setTimeout(() => {
+            // Remove a classe 'show' para iniciar o fade-out do Bootstrap
+            alertDiv.classList.remove('show'); 
+            
+            // Remove o elemento completamente após o tempo de transição (ex: 500ms)
+            setTimeout(() => {
+                if (mensagemDiv.contains(alertDiv)) {
+                    mensagemDiv.removeChild(alertDiv);
+                }
                 mensagemDiv.style.display = 'none';
-            }, { once: true });
-        });
+            }, 500); // 0.5 segundo para a animação fade
+            
+        }, 3000); // 3 segundos de exibição
     }
 
     /** Mostrar/esconder campo "Outra Encarregada" */
@@ -201,6 +215,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             showMessage('success', `Leito - ${estadoAnterior.leito} FINALIZADO e HIGIENIZADO em ${duracaoMinutos} minutos.`);
             carregarEstado();
+            
+            // Implementação da melhoria: Rola a página para o topo após sucesso
+            window.scrollTo(0, 0);
 
         } catch (error) {
             showMessage('error', 'Erro ao enviar o registro final. Tente novamente.');
@@ -279,6 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         registroForm.reset();
         carregarEstado();
+        
+        // Implementação da melhoria: Rola a página para o topo após início
+        window.scrollTo(0, 0);
     }
 
     /** Lógica para enviar dados no Modo Manual (Com validação Noturna) */
@@ -333,6 +353,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 defaultRadio.checked = true;
                 toggleOutraEncarregada(defaultRadio);
             }
+            
+            // Implementação da melhoria: Rola a página para o topo após sucesso
+            window.scrollTo(0, 0);
 
         } catch (error) {
             showMessage('error', 'Erro ao enviar o registro manual. Verifique a conexão.');

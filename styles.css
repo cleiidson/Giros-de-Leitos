@@ -19,7 +19,7 @@ h1 {
 .card {
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    background-color: #FFFFFF; /* Fundo branco corrigido */
+    background-color: #FFFFFF; 
     padding: 20px;
     border: 2px solid #111112; /* Borda escura */
     margin-bottom: 20px;
@@ -53,6 +53,21 @@ input:focus, textarea:focus {
     box-shadow: 0 0 8px rgba(0, 188, 212, 0.6); 
     outline: none;
 }
+
+/* --- CORREÇÃO DE ALINHAMENTO DO RADIO BUTTON PARA MOBILE --- */
+.form-check {
+    /* Força a bolinha e o texto a se alinharem corretamente ao topo */
+    display: flex; 
+    align-items: flex-start;
+}
+
+.form-check-input {
+    /* Ajusta a margem para que a bolinha fique alinhada com a primeira linha de texto */
+    margin-top: 0.25em; 
+    flex-shrink: 0; 
+}
+/* --- FIM DA CORREÇÃO DE ALINHAMENTO --- */
+
 
 /* Estilo para a divisão do Modo Manual/Noturno */
 #horariosManual {
@@ -146,15 +161,12 @@ input:focus, textarea:focus {
 /* Keyframes para a animação da borda (INTENSIFICADA E MAIS RÁPIDA) */
 @keyframes pulseBorder {
     0% {
-        /* Estado inicial: Sombra do card + um brilho sutil */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 rgba(0, 188, 212, 0); 
     }
     50% {
-        /* Estado de pico: Brilho forte e cor de "esterilização" (Ciano Clínico) */
         box-shadow: 0 0 10px rgba(0, 188, 212, 1), 0 0 25px rgba(0, 188, 212, 0.7);
     }
     100% {
-        /* Volta ao estado inicial */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 rgba(0, 188, 212, 0);
     }
 }
@@ -163,7 +175,6 @@ input:focus, textarea:focus {
 #statusEmAndamento {
     border: 2px solid #00BCD4; /* Borda clínica clara */
     transition: all 0.5s ease;
-    /* MUDANÇA PRINCIPAL: Pulsa mais rápido (1.5s) e de forma infinita */
     animation: pulseBorder 1.5s infinite ease-in-out; 
 }
 

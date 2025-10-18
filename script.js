@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Definição de Constantes e Elementos DOM
     const REGISTRO_FORM_ID = 'registroForm';
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec'; // URL REAL
+    // Mantenha sua URL REAL aqui
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjaQoyr-iZoK6AEywBkpfmukcVds3PhENUyNEFMXtHD5wkpACvQW0L21pTiJyO_XE4KA/exec'; 
     const LEITO_EM_ANDAMENTO_KEY = 'leitosEmAndamento'; // CHAVE PARA O ARRAY DE LEITOS ATIVOS
     const MODO_ATUAL_KEY = 'modoRegistro'; 
 
@@ -84,8 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         input.value = input.value.toUpperCase();
     };
 
-    // (As funções carregarHistorico e gerarTabelaHistorico devem ser mantidas aqui)
-
+    // FUNÇÕES DE HISTÓRICO REMOVIDAS
+    
     // --------------------------------------------------------------------------------
     // LÓGICA DE MÚLTIPLOS LEITOS
     // --------------------------------------------------------------------------------
@@ -108,7 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (leitos.length === 0) {
             STATUS_DIV.style.display = 'none';
-            // formCard.style.display é controlado por carregarEstado
             LEITOS_ATIVOS_CONTAINER.innerHTML = '<p class="text-center text-muted p-3 mb-0">Nenhuma higienização ativa.</p>';
             return;
         }
@@ -164,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const estadoAnterior = leitosAtivos[index];
-        // MELHORIA DE UX: MUDAR A MENSAGEM PARA REDUZIR A SENSAÇÃO DE ESPERA
         showMessage('info', `Enviando registro de finalização para ${estadoAnterior.andar}-${estadoAnterior.leito}...`);
 
         const horaTermino = new Date();
@@ -276,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         leitosAtivos.push(novoEstado);
         saveLeitosAtivos(leitosAtivos);
         
-        showMessage('success', `Higienização do Leito ${novoEstado.leito} INICIADA.`);
+        showMessage('success', `Higienização do Leito ${novoEstado.andar}-${novoEstado.leito} INICIADA.`);
         
         registroForm.reset();
         carregarEstado();
@@ -325,7 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 mode: 'no-cors'
             });
 
-            showMessage('success', `Registro manual enviado com sucesso! Duração:`);
+            // MENSAGEM DE SUCESSO AJUSTADA: Remove a duração do display
+            showMessage('success', 'Registro manual enviado com sucesso!'); 
             
             registroForm.reset();
             const defaultRadio = document.getElementById('encarregada_risocleide');

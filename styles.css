@@ -4,7 +4,6 @@ body {
     color: #333;
     margin: 0;
     padding: 20px;
-    /* Garante que o container não estique demais em telas grandes */
 }
 
 h1 {
@@ -39,6 +38,13 @@ input:focus, textarea:focus {
     border-color: #1E90FF; /* Azul da borda ao focar */
     box-shadow: 0 0 6px rgba(30,144,255,0.3);
     outline: none;
+}
+
+/* Estilo para a divisão do Modo Manual/Noturno */
+#horariosManual {
+    background-color: #fff3cd; /* Amarelo claro para destaque (alerta) */
+    border-color: #ffc107 !important; 
+    color: #856404;
 }
 
 /* --- Estilos de Botão --- */
@@ -92,14 +98,18 @@ input:focus, textarea:focus {
     border-color: #545b62;
 }
 
-/* --- Estilos Específicos da Aplicação --- */
-
-/* Estilo para a divisão do Modo Manual/Noturno */
-#horariosManual {
-    background-color: #fff3cd; /* Amarelo claro para destaque (alerta) */
-    border-color: #ffc107 !important; 
-    color: #856404;
+/* Botão de alternar modo */
+#alternarModoBtn {
+    border: none;
+    color: #c4c4c4; /* Cinza claro para combinar com o fundo escuro */
+    font-size: 0.9rem;
+    background: transparent;
 }
+#alternarModoBtn:hover {
+    color: #FFFFFF;
+}
+
+/* --- Estilos de Múltiplos Leitos --- */
 
 /* Contêiner da lista de leitos ativos (Modo Tempo Real) */
 #leitosAtivosContainer {
@@ -119,19 +129,7 @@ input:focus, textarea:focus {
     padding: 0.5em 0.8em;
 }
 
-/* Botão de alternar modo */
-#alternarModoBtn {
-    border: none;
-    color: #c4c4c4; /* Cinza claro para combinar com o fundo escuro */
-    font-size: 0.9rem;
-    background: transparent;
-}
-#alternarModoBtn:hover {
-    color: #FFFFFF;
-}
-
-
-/* --- Estilos de Mensagem e Outros Componentes --- */
+/* --- Estilos de Mensagem --- */
 #mensagem {
     position: fixed;
     top: 20px;
@@ -151,42 +149,7 @@ input:focus, textarea:focus {
 #mensagem .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
 #mensagem .alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
 
-
 #outra_encarregada_div {
     transition: all 0.3s ease;
 }
-/* Estilos legados mantidos (embora a lógica JS não use mais a classe hidden, é bom manter) */
-#outra_encarregada_div.hidden {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    padding: 0;
-    margin: 0;
-}
 
-/* --- Estilos de Histórico (Modal) --- */
-#historicoTabela table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#historicoTabela th, #historicoTabela td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    font-size: 0.9em;
-}
-
-#historicoTabela th {
-    background-color: #1e90ff; /* Azul para cabeçalho */
-    color: #FFFFFF;
-    font-weight: bold;
-}
-
-#historicoTabela tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-#historicoTabela tr:hover {
-    background-color: #e9ecef;
-}
